@@ -2,7 +2,7 @@ const
 	express = require('express'),
 	session = require('express-session'),
 	validator = require('../../../util/account_info_validation.js'),
-	pgdb = require('../../../sharesci-pg-db');
+	pgdb = require('../../../util/sharesci-pg-db');
 
 function getUserEmail(req, res) {
 	var responseJson = {

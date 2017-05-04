@@ -8,5 +8,8 @@ SERVER_PID="$(lsof -t -i:7080 -sTCP:LISTEN)"
 kill "$SERVER_PID"
 
 npm install
+cd clients
+npm install
+npm run build:nowatch
 nodejs "server.js" &
 
