@@ -2,7 +2,7 @@ const
 	express = require('express'),
 	session = require('express-session'),
 	validator = require('../../../util/account_info_validation.js'),
-	pgdb = require('../../../sharesci-pg-db');
+	pgdb = require('../../../util/sharesci-pg-db');
 
 function getUserInfo(req, res) {
 	var responseJson = {
@@ -21,7 +21,7 @@ function getUserInfo(req, res) {
 		return;
 	}
 
-	pgdb.one('SELECT username, firstname, lastname, institution, self_bio FROM account WHERE username = ${username};', {'username': username})
+	pgdb.func('get_user_public_info', [username])
 	.then((data) => {
 		responseJson.userJson = data;
 		res.json(responseJson);

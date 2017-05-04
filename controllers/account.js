@@ -1,5 +1,5 @@
 const
-	pgdb = require('../sharesci-pg-db'),
+	pgdb = require('../util/sharesci-pg-db'),
 	bcrypt = require('bcrypt'),
 	validator = require('../util/account_info_validation');
 
