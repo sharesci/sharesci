@@ -5,8 +5,9 @@ import { AccountService } from '../../services/account.service.js';
 import { User, IUserWrapper } from '../../entities/user.entity.js';
 
 @Component({
-    templateUrl: 'src/app/components/profile/profile.component.html',
-    styleUrls: ['src/app/components/profile/profile.component.css']
+    moduleId: module.id,
+    templateUrl: 'profile.component.html',
+    styleUrls: ['profile.component.css']
 })
 
 export class ProfileComponent implements OnInit {

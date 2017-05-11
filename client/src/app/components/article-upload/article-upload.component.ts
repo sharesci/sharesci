@@ -4,8 +4,9 @@ import { ActivatedRoute } from '@angular/router';
 const URL = '/api/v1/article';
 
 @Component({
-    templateUrl: 'src/app/components/article-upload/article-upload.component.html',
-    styleUrls: ['src/app/components/article-upload/article-upload.component.css']
+    moduleId: module.id,
+    templateUrl: 'article-upload.component.html',
+    styleUrls: ['article-upload.component.css']
 })
 
 export class ArticleUploadComponent implements OnInit {

@@ -4,9 +4,10 @@ import { AuthenticationService } from '../../services/authentication.service.js'
 import { SharedService } from '../../services/shared.service.js';
 
 @Component({
+    moduleId: module.id,
     selector: 'ss-login',
-    templateUrl: 'src/app/components/login/login.component.html',
-    styleUrls: ['src/app/components/login/login.component.css'],
+    templateUrl: 'login.component.html',
+    styleUrls: ['login.component.css'],
 })
 
 export class LoginComponent {

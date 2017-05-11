@@ -7,9 +7,10 @@ import { PagerService } from '../../services/pager.service.js';
 import { ArticleService } from '../../services/article.service.js';
 
 @Component({
+    moduleId: module.id,
     selector: 'ss-search-result',
-    templateUrl: 'src/app/components/search-result/search-result.component.html',
-    styleUrls: ['src/app/components/search-result/search-result.component.css']
+    templateUrl: 'search-result.component.html',
+    styleUrls: ['search-result.component.css']
 })
 
 export class SearchResultComponent implements OnInit {

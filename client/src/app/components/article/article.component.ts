@@ -6,8 +6,9 @@ import { IArticleWrapper } from '../../entities/article-wrapper.interface.js'
 import { IArticle } from '../../entities/article.interface.js'
 
 @Component({
-    templateUrl: 'src/app/components/article/article.component.html',
-    styleUrls: ['src/app/components/article/article.component.css']
+    moduleId: module.id,
+    templateUrl: 'article.component.html',
+    styleUrls: ['article.component.css']
 })
 
 export class ArticleComponent implements OnInit {

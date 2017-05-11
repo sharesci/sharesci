@@ -8,8 +8,9 @@ import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/filter';
 
 @Component({
+    moduleId: module.id,
     selector: 'ss-navbar',
-    templateUrl: 'src/app/components/navbar/navbar.component.html'
+    templateUrl: 'navbar.component.html'
 })
 
 export class NavbarComponent {

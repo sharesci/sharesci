@@ -6,8 +6,9 @@ import { AuthenticationService } from '../../services/authentication.service.js'
 import { UserInfoValidatonService, Error } from './user-info-validaton.service.js';
 
 @Component({
+    moduleId: module.id,
     selector: 'ss-account',
-    templateUrl: 'src/app/components/create-account/create-account.component.html',
+    templateUrl: 'create-account.component.html',
     providers: [UserInfoValidatonService]
 })
 

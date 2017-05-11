@@ -3,9 +3,10 @@ import { ISearchResults } from '../../entities/search-results.interface.js';
 import { SearchService } from '../../services/search.service.js';
 
 @Component({
+    moduleId: module.id,
     selector: 'ss-search',
-    templateUrl: 'src/app/components/home/home.component.html',
-    styleUrls: ['src/app/components/home/home.component.css']
+    templateUrl: 'home.component.html',
+    styleUrls: ['home.component.css']
 })
 
 export class HomeComponent {
