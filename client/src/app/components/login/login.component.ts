@@ -32,7 +32,6 @@ export class LoginComponent {
     }
 
     handleLoginResult(result: any) {
-        console.log(result);
         if (result.errno == '0') {
             localStorage.setItem('currentUser', this.username);
             this._sharedService.setLoginStatus(true);

@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 import { User } from '../../entities/user.entity.js';
 import { AccountService } from '../../services/account.service.js';
 import { AuthenticationService } from '../../services/authentication.service.js';
-import { UserInfoValidatonService, error } from './user-info-validaton.service.js';
+import { UserInfoValidatonService, Error } from './user-info-validaton.service.js';
 
 @Component({
     selector: 'ss-account',
@@ -14,13 +15,13 @@ export class CreateAccountComponent {
     user = new User();
     err = { email: "", main: "", password: "", self_bio: "", institution: "", firstname: "", lastname: "", username: "", conf_email: "", conf_password: "" };
     msgclass = "alert alert-success";
-    formValid: boolean = true;
 
     constructor(private _accountService: AccountService, private _authService: AuthenticationService,
-                private _validationService: UserInfoValidatonService) { }
+                private _validationService: UserInfoValidatonService, private _router: Router) { }
 
     createAccount() {
-        if (this.formValid) {
+        let formValid = this._validationService.validateAll(this.user, $("#email").val(), $("#conf_email").val(), $("#conf_password").val());
+        if (formValid) {
             this._accountService.create(this.user)
                 .subscribe(
                 result => this.handleResult(result),
@@ -39,8 +40,9 @@ export class CreateAccountComponent {
                 .subscribe(
                 result => {
                     this._accountService.addUserEmail(this.user.username, $("#email").val());
-                    this.err.main = "Account created. You can login now.";
+                    this.err.main = "Account created. You will be redirected to login page now.";
                     this.msgclass = "alert alert-success";
+                    this._router.navigate(["/login"]);
                 },
                 error => { return }
                 )
@@ -53,8 +55,7 @@ export class CreateAccountComponent {
 
     validate(event: any) {
         let id = event.srcElement.id;
-        let currentErr : error = { errno: 0, errstr: "" };
-        console.log(id);
+        let currentErr : Error = new Error(0, "");
         switch (id) {
             case "email":
                      currentErr = this._validationService.is_valid_email($("#email").val());
@@ -92,34 +93,6 @@ export class CreateAccountComponent {
                     currentErr = this._validationService.is_valid_username(this.user.username);
                     this.err.username = currentErr.errstr;
                     break;
-        }
-        this.formValid = Boolean(currentErr.errno);
-    }
-
-    matchEmail(event: any) {
-        console.log(event);
-        let email = $("#email").val();
-        let conf_email = $("#conf_email").val();
-        if (email != conf_email) {
-            this.err.email = "Emails do not match.";
-            this.formValid = false;
-        }
-        else {
-            this.err.email = "";
-            this.formValid = true;
-        }
-    }
-
-    matchPassword() {
-        let password = $("#password").val();
-        let conf_password = $("#conf_password").val();
-        if (password != conf_password) {
-            this.err.password = "Passwords do not match.";
-            this.formValid = false;
-        }
-        else {
-            this.err.password = "";
-            this.formValid = true;
         }
     }
 }
