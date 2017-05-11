@@ -26,7 +26,7 @@ try {
 }
 
 app.use('/', (req, res, next) => {
-	if(!req.secure && https_ok) {
+	if(https_ok && !req.secure) {
 		return res.redirect(['https://', req.get('Host'), req.url].join(''));
 	}
 	next();
@@ -46,5 +46,9 @@ app.use('/', express.static(__dirname + '/client'));
 http.createServer(app).listen(80);
 
 if (https_ok) {
-	https.createServer(https_options, app).listen(443);
+	try {
+		https.createServer(https_options, app).listen(443);
+	} catch (err) {
+		https_ok = false;
+	}
 }
