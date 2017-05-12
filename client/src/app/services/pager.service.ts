@@ -1,4 +1,4 @@
-import * as _ from '../../../node_modules/underscore/underscore.js';
+import * as _ from 'underscore';
  
 export class PagerService {
     getPager(totalItems: number, currentPage: number = 1, pageSize: number = 10) {
