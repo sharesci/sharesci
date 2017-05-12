@@ -12,3 +12,13 @@ src/app/**/*.js
 
 # Dependency directories
 node_modules
+
+#Build Files
+aot/
+*.ngstyle.ts
+*.ngsummary.json
+*.ngfactory.ts
+
+main.js
+main-jit.js
+

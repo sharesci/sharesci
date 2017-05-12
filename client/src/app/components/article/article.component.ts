@@ -32,7 +32,7 @@ export class ArticleComponent implements OnInit {
         }
     }
 
-    private viewPdf(download: boolean) {
+    viewPdf(download: boolean) {
         var saveAs = require('file-saver');
         this._articleService.getArticle(this.article._id, true)
             .subscribe(
