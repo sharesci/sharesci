@@ -3,7 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
 import { HttpModule } from '@angular/http';
-import { FileUploadModule } from 'ng2-file-upload';
+import { FileSelectDirective, FileDropDirective } from 'ng2-file-upload';
 
 import { AppComponent } from './app.component.js';
 import { LoginComponent } from './components/login/login.component.js';
@@ -32,13 +32,12 @@ const appRoutes: Routes = [
     BrowserModule,
     FormsModule,
     HttpModule,
-    FileUploadModule,
     RouterModule.forRoot(appRoutes, { useHash: true })
   ],
   declarations: [ AppComponent, LoginComponent, NavbarComponent, HomeComponent,
                   CreateAccountComponent, SearchResultComponent, ProfileComponent,
                   ArticleComponent, ArticleUploadComponent,
-                ],
+                  FileSelectDirective, FileDropDirective ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
