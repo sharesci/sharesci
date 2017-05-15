@@ -1,5 +1,5 @@
 const
-	pgdb = require('../util/sharesci-pg-db'),
+	pgdb = require('../../../../util/sharesci-pg-db'),
 	bcrypt = require('bcrypt');
 
 
@@ -43,6 +43,15 @@ function loginAction(req, res)  {
 		});
 }
 
+function getLogin(req, res) {
+	var username = req.session.user_id;
+	if(!username) {
+		username = null;
+	}
+	res.json({errno: 0, errstr: "Not logged in", username: username});
+	res.end();
+}
+
 function loginPage(req, res) {
 	res.redirect('/');
 	res.end();
@@ -51,6 +60,7 @@ function loginPage(req, res) {
 
 module.exports = {
 	loginAction: loginAction,
+	getLogin: getLogin,
 	loginPage: loginPage
 };
 

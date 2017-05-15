@@ -1,8 +1,8 @@
 const
 	express = require('express'),
 	path = require('path'),
-	loginRouter = require('./login'),
-	logoutRouter = require('./logout'),
+	loginRouter = require('./api/v1/auth/login'),
+	logoutRouter = require('./api/v1/auth/logout'),
 	accountRouter = require('./account'),
 	apiRouter = require('./api');
 

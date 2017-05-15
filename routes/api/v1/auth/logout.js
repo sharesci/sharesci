@@ -1,7 +1,7 @@
 const
 	express = require('express'),
 	bodyParser = require('body-parser'),
-	logoutController = require('../controllers/logout');
+	logoutController = require('../../../../controllers/api/v1/auth/logout');
 
 var router = express.Router();
 

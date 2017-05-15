@@ -4,11 +4,14 @@ const
 	multer = require('multer')({dest:'./uploads'}),
 	searchController = require('../../../controllers/api/v1/search'),
 	articleController = require('../../../controllers/api/v1/article'),
-	userinfoController = require('../../../controllers/api/v1/userinfo');
-	useremailController = require('../../../controllers/api/v1/useremail');
+	authRouter = require('./auth'),
+	userinfoController = require('../../../controllers/api/v1/userinfo'),
+	useremailController = require('../../../controllers/api/v1/useremail'),
 	userpasswordController = require('../../../controllers/api/v1/userpassword');
 
 var router = express.Router();
+
+router.use('/auth', authRouter);
 
 router.get('/search', searchController.index);
 
