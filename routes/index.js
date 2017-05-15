@@ -8,6 +8,15 @@ const
 
 var router = express.Router();
 
+router.get('/', (req, res, next) => {
+	if(req.query.code) {
+		res.redirect('/api/v1/auth/orcid?code=' + req.query.code);
+		res.end();
+	} else {
+		next();
+	}
+});
+
 router.get('/', express.static(__dirname + '/../client'));
 
 router.get('/', function(req, res) {
