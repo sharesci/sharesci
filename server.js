@@ -1,6 +1,7 @@
 const
 	express = require('express'),
 	express_session = require('express-session'),
+	compression = require('compression'),
 	https = require('https'),
 	http = require('http'),
 	tls_options = require('./util/tls-options'),
@@ -17,6 +18,7 @@ app.use('/', (req, res, next) => {
 	}
 	next();
 });
+app.use(compression());
 app.use(express_session({
 	secret: require('crypto').randomBytes(64).toString('base64'),
 	resave: false,
