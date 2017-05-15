@@ -48,7 +48,7 @@ function getLogin(req, res) {
 	if(!username) {
 		username = null;
 	}
-	res.json({errno: 0, errstr: "Not logged in", username: username});
+	res.json({errno: 0, errstr: "", username: username});
 	res.end();
 }
 
