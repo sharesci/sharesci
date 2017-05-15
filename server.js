@@ -3,27 +3,13 @@ const
 	express_session = require('express-session'),
 	https = require('https'),
 	http = require('http'),
-	fs = require('fs'),
+	tls_options = require('./util/tls-options'),
 	rootRouter = require('./routes/index');
 
 const app = express();
 
-var https_ok = true;
-var https_options = {};
-try {
-	var https_options = {
-		key: fs.readFileSync('/etc/letsencrypt/live/sharesci.org/privkey.pem'),
-		cert: fs.readFileSync('/etc/letsencrypt/live/sharesci.org/cert.pem')
-	};
-} catch (err) {
-	https_ok = false;
-	if (err.errno === -13 && err.syscall === 'open') {
-		console.error('Access permissions denied to SSL certificate files.' +
-			' HTTPS will not be available. Try running as root.');
-	} else {
-		console.error(err);
-	}
-}
+var https_options = tls_options;
+var https_ok = tls_options['isValid'];
 
 app.use('/', (req, res, next) => {
 	if(https_ok && !req.secure) {
