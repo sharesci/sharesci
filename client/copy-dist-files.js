@@ -1,11 +1,12 @@
 var fs = require('fs');
 var resources = [
-  'node_modules/core-js/client/shim.min.js',
-  'node_modules/zone.js/dist/zone.min.js'
+  ['node_modules/core-js/client/shim.min.js', 'aot/shim.min.js'],
+  ['node_modules/zone.js/dist/zone.min.js', 'aot/zone.min.js'],
+  ['src/index-aot.html', 'aot/index.html']
 ];
 resources.map(function(f) {
-  var path = f.split('/');
-  var t = 'aot/' + path[path.length-1];
   console.log(f);
-  fs.createReadStream(f).pipe(fs.createWriteStream(t));
+  var s = f[0];
+  var d = f[1];
+  fs.createReadStream(s).pipe(fs.createWriteStream(d));
 });
