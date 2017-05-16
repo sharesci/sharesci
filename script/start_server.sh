@@ -10,10 +10,17 @@ SERVER_PID="$(lsof -t -i:443 -sTCP:LISTEN)"
 kill "$SERVER_PID"
 
 npm install
-cd clients
+cd client
 npm install
-npm run build:nowatch
+npm run build:aot
+nodejs copy-dist-files.js
 cd ..
-psql -d sharesci < script/pg_db_schema_setup.sql
+
+if [ ! -z "NO_DATABASE_SETUP" ] ; then
+	printf "Updating database schema...\n"
+	psql -d sharesci < script/pg_db_schema_setup.sql
+else
+	printf "Found \$NO_DATABASE_SETUP. Skipping database schema update.\n"
+fi
 nodejs "server.js" &
 
