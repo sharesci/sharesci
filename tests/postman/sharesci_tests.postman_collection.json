@@ -1,0 +1,329 @@
+{
+	"variables": [],
+	"info": {
+		"name": "sharesci_tests",
+		"_postman_id": "9694c1c0-717c-82c8-06f3-8e83027ec857",
+		"description": "Tests for ShareSci.org",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "https://sharesci.org/api/v1/users/:username/emails",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"var schema = {",
+							" \"errno\": {",
+							"     type: \"integer\"",
+							" },",
+							" \"errstr\": {",
+							"     type: \"string\"",
+							" },",
+							" \"emails\": {",
+							"     type: \"array\",",
+							"     items: {",
+							"         type: \"string\"",
+							"     }",
+							" }",
+							"};",
+							"tests[\"Valid Data\"] = tv4.validate(jsonData, schema);"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": {
+					"raw": "https://sharesci.org/api/v1/users/:username/emails",
+					"protocol": "https",
+					"auth": {},
+					"host": [
+						"sharesci",
+						"org"
+					],
+					"path": [
+						"api",
+						"v1",
+						"users",
+						":username",
+						"emails"
+					],
+					"variable": [
+						{
+							"value": "test1",
+							"id": "username"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": "Get user email addresses"
+			},
+			"response": []
+		},
+		{
+			"name": "https://sharesci.org/api/v1/users/:username",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"var schema = {",
+							"  \"errno\": {",
+							"      type: \"integer\"",
+							"  },",
+							"  \"errstr\": {",
+							"      type: \"string\"",
+							"  },",
+							"  \"userJson\": {",
+							"      type: \"array\",",
+							"      items: {",
+							"          type: \"object\",",
+							"          properties: {",
+							"              \"username\": \"string\",",
+							"              \"firstname\": \"string\",",
+							"              \"lastname\": \"string\",",
+							"              \"institution\": \"string\",",
+							"              \"self_bio\": \"string\"",
+							"          }",
+							"      }",
+							"  }",
+							"};",
+							"",
+							"tests[\"Valid Data\"] = tv4.validate(jsonData, schema);",
+							"",
+							"tests[\"Response time is less than 200ms\"] = responseTime < 200;"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": {
+					"raw": "https://sharesci.org/api/v1/users/:username",
+					"protocol": "https",
+					"auth": {},
+					"host": [
+						"sharesci",
+						"org"
+					],
+					"path": [
+						"api",
+						"v1",
+						"users",
+						":username"
+					],
+					"variable": [
+						{
+							"value": "test1",
+							"id": "username"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": "Get user info"
+			},
+			"response": []
+		},
+		{
+			"name": "https://sharesci.org/api/v1/user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"var schema = {",
+							"  \"errno\": \"integer\",",
+							"  \"errstr\": \"string\",",
+							"  \"username\": \"string\"",
+							"};",
+							"",
+							"tests[\"Response time is less than 200ms\"] = responseTime < 200;",
+							"",
+							"tests[\"Valid Data\"] = tv4.validate(jsonData, schema);"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "https://sharesci.org/api/v1/user",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": "Check if user is logged in"
+			},
+			"response": []
+		},
+		{
+			"name": "https://sharesci.org/api/v1/auth/login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"var schema = {",
+							"  \"errno\": {",
+							"      type: \"integer\"",
+							"  },",
+							"  \"errstr\": {",
+							"      type: \"string\"",
+							"  }",
+							"};",
+							"",
+							"tests[\"Valid Data\"] = tv4.validate(jsonData, schema);"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "https://sharesci.org/api/v1/auth/login",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "username",
+							"value": "test1",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "password",
+							"value": "password",
+							"type": "text",
+							"enabled": true
+						}
+					]
+				},
+				"description": "Log in to server"
+			},
+			"response": []
+		},
+		{
+			"name": "https://sharesci.org/api/v1/user/emails",
+			"request": {
+				"url": "https://sharesci.org/api/v1/user/emails",
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "email",
+							"value": "testerman23@example.com",
+							"type": "text",
+							"enabled": true
+						}
+					]
+				},
+				"description": "Add email for user"
+			},
+			"response": []
+		},
+		{
+			"name": "https://sharesci.org/api/v1/user/emails",
+			"request": {
+				"url": "https://sharesci.org/api/v1/user/emails",
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "username",
+							"value": "test1",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "email",
+							"value": "testerman23@example.com",
+							"type": "text",
+							"enabled": true
+						}
+					]
+				},
+				"description": "Delete user email"
+			},
+			"response": []
+		},
+		{
+			"name": "http://sharesci.org/api/v1/articles/:id",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"var schema = {",
+							"    \"errno\": {",
+							"        type: \"integer\"",
+							"    },",
+							"    \"articleJson\": {",
+							"        type: \"object\"",
+							"    }",
+							"};",
+							"",
+							"tests[\"Valid Data\"] = tv4.validate(jsonData, schema);",
+							"if(tv4.error) {",
+							"    console.log(\"Validation failed: \", tv4.error);",
+							"}",
+							"",
+							"tests[\"Response time is less than 500ms\"] = responseTime < 500;"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": {
+					"raw": "http://sharesci.org/api/v1/articles/:id",
+					"protocol": "http",
+					"auth": {},
+					"host": [
+						"sharesci",
+						"org"
+					],
+					"path": [
+						"api",
+						"v1",
+						"articles",
+						":id"
+					],
+					"variable": [
+						{
+							"value": "58f4405735f1d34756346ae4",
+							"id": "id"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": "Get article metadata"
+			},
+			"response": []
+		}
+	]
+}
