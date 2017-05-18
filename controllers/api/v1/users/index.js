@@ -25,6 +25,11 @@ function getUserInfo(req, res) {
 
 	pgdb.func('get_user_public_info', [username])
 	.then((data) => {
+		if (data.length !== 1) {
+			data = null;
+		} else {
+			data = data[0];
+		}
 		responseJson.userJson = data;
 		res.json(responseJson);
 		res.end();
