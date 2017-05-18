@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FileUploader } from 'ng2-file-upload';
 import { ActivatedRoute } from '@angular/router';
-const URL = '/api/v1/article';
+const URL = '/api/v1/articles';
 
 @Component({
     moduleId: module.id,

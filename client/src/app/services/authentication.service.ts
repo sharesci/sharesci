@@ -13,8 +13,8 @@ export class AuthenticationService {
     constructor(private _http: Http, private _config: AppConfig, private _sharedService: SharedService,
         private _router: Router) { }
 
-    private _loginUrl = this._config.apiUrl + '/login';
-    private _logoutUrl = this._config.apiUrl + '/logout';
+    private _loginUrl = this._config.apiUrl + '/auth/login';
+    private _logoutUrl = this._config.apiUrl + '/auth/logout';
 
     login(username: string, password: string): Observable<any> {
 
