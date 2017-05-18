@@ -5,7 +5,7 @@ const
 	ObjectId = require('mongodb').ObjectId,
 	MongoClient = require('mongodb').MongoClient,
 	mongo_url = 'mongodb://localhost:27017/sharesci',
-	validator = require('../../../util/account_info_validation');
+	validator = require.main.require('./util/account_info_validation');
 
 
 function getArticle(req, res) {
@@ -22,7 +22,7 @@ function getArticle(req, res) {
 			res.status(500).json({errno: 1, errstr: 'Error opening DB'}).end();
 			return;
 		}
-		if (!req.query.id) {
+		if (!req.params.id) {
 			db.close();
 			responseJson.errno = 5;
 			res.status(422).json(responseJson);
@@ -32,7 +32,7 @@ function getArticle(req, res) {
 		var cursor;
 
 		try {
-			cursor = db.collection('papers').find({'_id': new ObjectId(req.query.id)});
+			cursor = db.collection('papers').find({'_id': new ObjectId(req.params.id)});
 		} catch(err) {
 			console.error(err);
 			res.status(500).json({errno: 1, errstr: 'Unknown error'});
@@ -87,7 +87,7 @@ function getArticle(req, res) {
 	});
 }
 
-function putArticle(req, res) {
+function postArticle(req, res) {
 	var responseJson = {
 		errno: 0,
 		errstr: ''
@@ -191,6 +191,6 @@ return new Promise((resolve, reject) => {
 
 module.exports = {
 	getArticle: getArticle,
-	putArticle: putArticle
+	postArticle: postArticle
 };
 

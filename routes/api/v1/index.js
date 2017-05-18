@@ -16,9 +16,9 @@ router.use('/users', usersRouter);
 
 router.get('/search', searchController.index);
 
-router.get('/articles', articleController.getArticle);
+router.get('/articles/:id', articleController.getArticle);
 router.put('/articles', multer.array('fulltextfile', 10));
-router.put('/articles', articleController.putArticle);
+router.put('/articles', articleController.postArticle);
 
 
 
