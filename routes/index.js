@@ -3,7 +3,6 @@ const
 	path = require('path'),
 	loginRouter = require('./api/v1/auth/login'),
 	logoutRouter = require('./api/v1/auth/logout'),
-	accountRouter = require('./account'),
 	apiRouter = require('./api');
 
 var router = express.Router();
@@ -24,7 +23,6 @@ router.get('/', function(req, res) {
 });
 router.use('/login', loginRouter);
 router.use('/logout', logoutRouter);
-router.use('/account', accountRouter);
 router.use('/api', apiRouter);
 
 module.exports = router;

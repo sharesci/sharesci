@@ -1,8 +1,8 @@
 const
 	express = require('express'),
 	session = require('express-session'),
-	validator = require('../../../util/account_info_validation.js'),
-	pgdb = require('../../../util/sharesci-pg-db');
+	validator = require.main.require('./util/account_info_validation.js'),
+	pgdb = require.main.require('./util/sharesci-pg-db');
 
 function getUserEmail(req, res) {
 	var responseJson = {
@@ -11,7 +11,7 @@ function getUserEmail(req, res) {
 		emails: []
 	};
 
-	var username = req.query.username;
+	var username = req.params.username;
 
 	if(!username) {
 		responseJson.errno = 2;
@@ -40,7 +40,7 @@ function getUserEmail(req, res) {
 
 }
 
-function putUserEmail(req, res) {
+function postUserEmail(req, res) {
 	var responseJson = {
 		errno: 0,
 		errstr: '',
@@ -53,13 +53,9 @@ function putUserEmail(req, res) {
 		res.end();
 	};
 
-	var username = req.body.username;
+	var username = req.session.user_id;
 
-	if(!username) {
-		console.log(username);
-		respond_error({errno: 2, errstr: 'Invalid or unknown username'});
-		return;
-	} else if (!req.session.user_id || req.session.user_id !== username) {
+	if (!username) {
 		respond_error({errno: 9, errstr: 'Unauthorized'}, 401);
 		return;
 	}
@@ -97,13 +93,9 @@ function deleteUserEmail(req, res) {
 		res.end();
 	};
 
-	var username = req.body.username;
+	var username = req.session.user_id;
 
-	if(!username) {
-		console.log(username);
-		respond_error({errno: 2, errstr: 'Invalid or unknown username'});
-		return;
-	} else if (!req.session.user_id || req.session.user_id !== username) {
+	if (!username) {
 		respond_error({errno: 9, errstr: 'Unauthorized'}, 401);
 		return;
 	}
@@ -130,7 +122,7 @@ function deleteUserEmail(req, res) {
 
 module.exports = {
 	getUserEmail: getUserEmail,
-	putUserEmail: putUserEmail,
+	postUserEmail: postUserEmail,
 	deleteUserEmail: deleteUserEmail
 };
 

@@ -2,35 +2,26 @@ const
 	express = require('express'),
 	bodyParser = require('body-parser'),
 	multer = require('multer')({dest:'./uploads'}),
-	searchController = require('../../../controllers/api/v1/search'),
-	articleController = require('../../../controllers/api/v1/article'),
+	searchController = require.main.require('./controllers/api/v1/search'),
+	articleController = require.main.require('./controllers/api/v1/article'),
 	authRouter = require('./auth'),
-	userinfoController = require('../../../controllers/api/v1/userinfo'),
-	useremailController = require('../../../controllers/api/v1/useremail'),
-	userpasswordController = require('../../../controllers/api/v1/userpassword');
+	userRouter = require('./user'),
+	usersRouter = require('./users');
 
 var router = express.Router();
 
 router.use('/auth', authRouter);
+router.use('/user', userRouter);
+router.use('/users', usersRouter);
 
 router.get('/search', searchController.index);
 
-router.get('/article', articleController.getArticle);
-router.post('/article', multer.array('fulltextfile', 10));
-router.post('/article', articleController.putArticle);
+router.get('/articles', articleController.getArticle);
+router.put('/articles', multer.array('fulltextfile', 10));
+router.put('/articles', articleController.putArticle);
 
-router.get('/userinfo', userinfoController.getUserInfo);
-router.post('/userinfo', bodyParser.urlencoded({ extended: true }));
-router.post('/userinfo', userinfoController.putUserInfo);
 
-router.post('/userpassword', bodyParser.urlencoded({ extended: true }));
-router.post('/userpassword', userpasswordController.putUserPassword);
 
-router.get('/useremail', useremailController.getUserEmail);
-router.post('/useremail', bodyParser.urlencoded({ extended: true }));
-router.post('/useremail', useremailController.putUserEmail);
-router.delete('/useremail', bodyParser.urlencoded({ extended: true }));
-router.delete('/useremail', useremailController.deleteUserEmail);
 
 module.exports = router;
 

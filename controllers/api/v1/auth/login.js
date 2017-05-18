@@ -13,6 +13,7 @@ function loginAction(req, res)  {
 		responseObj.errstr = "Already logged in";
 		res.json(responseObj);
 		res.end();
+		return;
 	}
 	pgdb.func('get_user_passhash', [req.body.username])
 		.then((data) => {

@@ -17,7 +17,19 @@
   "tags": [
     {
       "name": "auth",
-      "description": "All user authentication endpoints (login, login-with-Site-X-via-OAuth, logout, etc)"
+      "description": "All user authentication endpoints (login, login-with-site-x-via-oauth, logout, etc)"
+    },
+    {
+      "name": "users",
+      "description": "Endpoints for user data"
+    },
+    {
+      "name": "search",
+      "description": "Endpoints for searching the database"
+    },
+    {
+      "name": "articles",
+      "description": "Endpoints for articles"
     }
   ],
   "schemes": [
@@ -25,21 +37,45 @@
     "https"
   ],
   "paths": {
-    "/auth/login": {
-      "get": {
+    "/articles": {
+      "post": {
         "tags": [
-          "auth"
+          "articles"
         ],
-        "summary": "Get user login status",
-        "description": "Get the username of the currently logged in user (given a session id cookie)",
-        "operationId": "getUserLogin",
+        "summary": "Add a new article",
+        "description": "Add a new article to the database",
+        "operationId": "postArticle",
         "produces": [
           "application/json"
         ],
-        "parameters": [],
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "parameters": [
+          {
+            "name": "metaJson",
+            "in": "formData",
+            "required": true,
+            "type": "string",
+            "description": "The metadata JSON of the new article (should be JSON with ArticleJSON schema). At least title field MUST be present; other fields are optional"
+          },
+          {
+            "name": "file",
+            "in": "formData",
+            "required": false,
+            "type": "file",
+            "description": "PDF of the article"
+          }
+        ],
         "responses": {
-          "200": {
-            "description": "successful operation",
+          "422": {
+            "description": "Missing or invalid metaJson"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "default": {
+            "description": "Successful operation. Returns insertedIds to indicate the unique ID of the new article.",
             "schema": {
               "type": "object",
               "properties": {
@@ -49,14 +85,76 @@
                 "errstr": {
                   "type": "string"
                 },
-                "username": {
+                "insertedIds": {
                   "type": "string"
                 }
               }
             }
           }
         }
-      },
+      }
+    },
+    "/articles/{id}": {
+      "get": {
+        "tags": [
+          "articles"
+        ],
+        "summary": "Get an article",
+        "description": "Gets an article (metadata-only by default; PDF can be retrieved with parameter)",
+        "operationId": "getArticle",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "The unique ID of the article (same as from ArticleAuthor model)"
+          },
+          {
+            "name": "pdf",
+            "in": "query",
+            "type": "number",
+            "required": false,
+            "description": "Can be 1 or 0 (default 0). The value \"1\" indicates that a PDF should be returned instead of metadata."
+          }
+        ],
+        "responses": {
+          "422": {
+            "description": "Missing article ID in query"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "default": {
+            "description": "Successful operation. If the query pdf field is 1, serves a PDF file. Else, serves the JSON metadata below (defined by the model ArticleJSON)",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "errno": {
+                  "type": "number"
+                },
+                "articleJson": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/ArticleJSON"
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Content-type": {
+                "description": "The content type. Will be `application/pdf` if a PDF is being served, and not present otherwise (or potentially `application/json`)",
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/login": {
       "post": {
         "tags": [
           "auth"
@@ -142,298 +240,6 @@
         }
       }
     },
-    "/userinfo": {
-      "get": {
-        "tags": [
-          "userinfo"
-        ],
-        "summary": "Get user information",
-        "description": "",
-        "operationId": "getUserInfo",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "username",
-            "in": "query",
-            "type": "string",
-            "required": true,
-            "description": "The name of the user to get info for"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": "successful operation",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "errno": {
-                  "type": "number"
-                },
-                "errstr": {
-                  "type": "string"
-                },
-                "userJson": {
-                  "type": "object"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "userinfo"
-        ],
-        "summary": "Alter user information",
-        "description": "",
-        "operationId": "postUserInfo",
-        "produces": [
-          "application/json"
-        ],
-        "consumes": [
-          "application/x-www-form-urlencoded"
-        ],
-        "parameters": [
-          {
-            "name": "username",
-            "in": "formData",
-            "required": true,
-            "type": "string",
-            "description": "The name of the user to change data for"
-          },
-          {
-            "name": "firstname",
-            "in": "formData",
-            "required": false,
-            "type": "string",
-            "description": ""
-          },
-          {
-            "name": "lastname",
-            "in": "formData",
-            "required": false,
-            "type": "string",
-            "description": ""
-          },
-          {
-            "name": "self_bio",
-            "in": "formData",
-            "required": false,
-            "type": "string",
-            "description": ""
-          },
-          {
-            "name": "institution",
-            "in": "formData",
-            "required": false,
-            "type": "string",
-            "description": ""
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/ApiResponse"
-            }
-          }
-        }
-      }
-    },
-    "/useremail": {
-      "get": {
-        "tags": [
-          "useremail"
-        ],
-        "summary": "Get user email addresses",
-        "description": "Gets all email addresses associated with a user",
-        "operationId": "getUserEmail",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "username",
-            "in": "query",
-            "type": "string",
-            "required": true,
-            "description": "The name of the user to get emails of"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": "successful operation",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "errno": {
-                  "type": "number"
-                },
-                "errstr": {
-                  "type": "string"
-                },
-                "emails": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "useremail"
-        ],
-        "summary": "Add a user email address",
-        "description": "",
-        "operationId": "postUserEmail",
-        "produces": [
-          "application/json"
-        ],
-        "consumes": [
-          "application/x-www-form-urlencoded"
-        ],
-        "parameters": [
-          {
-            "name": "username",
-            "in": "formData",
-            "type": "string",
-            "required": true,
-            "description": "The name of the user to get emails of"
-          },
-          {
-            "name": "email",
-            "in": "formData",
-            "type": "string",
-            "required": true,
-            "description": "The email address to add"
-          },
-          {
-            "name": "isprimary",
-            "in": "formData",
-            "type": "boolean",
-            "required": false,
-            "description": "Whether the new email is the primary email"
-          }
-        ],
-        "responses": {
-          "401": {
-            "description": "Unauthorized",
-            "schema": {
-              "$ref": "#/definitions/ApiResponse"
-            }
-          },
-          "default": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/ApiResponse"
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "useremail"
-        ],
-        "summary": "Delete a user email address",
-        "description": "",
-        "operationId": "deleteUserEmail",
-        "produces": [
-          "application/json"
-        ],
-        "consumes": [
-          "application/x-www-form-urlencoded"
-        ],
-        "parameters": [
-          {
-            "name": "username",
-            "in": "formData",
-            "type": "string",
-            "required": true,
-            "description": "The name of the user to delete emails of"
-          },
-          {
-            "name": "email",
-            "in": "formData",
-            "type": "string",
-            "required": true,
-            "description": "The email address to delete"
-          }
-        ],
-        "responses": {
-          "401": {
-            "description": "Unauthorized",
-            "schema": {
-              "$ref": "#/definitions/ApiResponse"
-            }
-          },
-          "default": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/ApiResponse"
-            }
-          }
-        }
-      }
-    },
-    "/userpassword": {
-      "post": {
-        "tags": [
-          "userpassword"
-        ],
-        "summary": "Change user password",
-        "description": "Change the password of the currently logged in user",
-        "operationId": "postUserPassword",
-        "produces": [
-          "application/json"
-        ],
-        "consumes": [
-          "application/x-www-form-urlencoded"
-        ],
-        "parameters": [
-          {
-            "name": "username",
-            "in": "formData",
-            "type": "string",
-            "required": true,
-            "description": "Username of currently logged in user"
-          },
-          {
-            "name": "curPassword",
-            "in": "formData",
-            "type": "string",
-            "required": true,
-            "description": "The user's current password"
-          },
-          {
-            "name": "newPassword",
-            "in": "formData",
-            "type": "string",
-            "required": true,
-            "description": "The new password for the user"
-          }
-        ],
-        "responses": {
-          "401": {
-            "description": "Unauthorized",
-            "schema": {
-              "$ref": "#/definitions/ApiResponse"
-            }
-          },
-          "default": {
-            "description": "Success",
-            "schema": {
-              "$ref": "#/definitions/ApiResponse"
-            }
-          }
-        }
-      }
-    },
     "/search": {
       "get": {
         "tags": [
@@ -496,103 +302,28 @@
         }
       }
     },
-    "/article": {
+    "/user": {
       "get": {
         "tags": [
-          "article"
+          "user"
         ],
-        "summary": "Get an article",
-        "description": "Gets an article (metadata-only by default; PDF can be retrieved with parameter)",
-        "operationId": "getArticle",
+        "summary": "Get user login status",
+        "description": "Get the username of the currently logged in user (given a session id cookie)",
+        "operationId": "getUserLogin",
         "produces": [
           "application/json"
         ],
         "parameters": [
           {
-            "name": "id",
-            "in": "query",
+            "name": "Cookie",
             "type": "string",
-            "required": true,
-            "description": "The unique ID of the article (same as from ArticleAuthor model)"
-          },
-          {
-            "name": "pdf",
-            "in": "query",
-            "type": "number",
-            "required": false,
-            "description": "Can be 1 or 0 (default 0). The value \"1\" indicates that a PDF should be returned instead of metadata."
+            "in": "header",
+            "description": "Must have a session cookie (given at login) representing the ID of the current user session. This is required for all (or most) resources on this path, even if it isn't explicitly specified"
           }
         ],
         "responses": {
-          "422": {
-            "description": "Missing article ID in query"
-          },
-          "500": {
-            "description": "Internal server error"
-          },
-          "default": {
-            "description": "Successful operation. If the query pdf field is 1, serves a PDF file. Else, serves the JSON metadata below (defined by the model ArticleJSON)",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "errno": {
-                  "type": "number"
-                },
-                "articleJson": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/ArticleJSON"
-                  }
-                }
-              }
-            },
-            "headers": {
-              "Content-type": {
-                "description": "The content type. Will be `application/pdf` if a PDF is being served, and not present otherwise (or potentially `application/json`)",
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "article"
-        ],
-        "summary": "Add a new article",
-        "description": "Add a new article to the database",
-        "operationId": "postArticle",
-        "produces": [
-          "application/json"
-        ],
-        "consumes": [
-          "multipart/form-data"
-        ],
-        "parameters": [
-          {
-            "name": "metaJson",
-            "in": "formData",
-            "required": true,
-            "type": "string",
-            "description": "The metadata JSON of the new article (should be JSON with ArticleJSON schema). At least title field MUST be present; other fields are optional"
-          },
-          {
-            "name": "file",
-            "in": "formData",
-            "required": false,
-            "type": "file",
-            "description": "PDF of the article"
-          }
-        ],
-        "responses": {
-          "422": {
-            "description": "Missing or invalid metaJson"
-          },
-          "500": {
-            "description": "Internal server error"
-          },
-          "default": {
-            "description": "Successful operation. Returns insertedIds to indicate the unique ID of the new article.",
+          "200": {
+            "description": "successful operation",
             "schema": {
               "type": "object",
               "properties": {
@@ -602,8 +333,356 @@
                 "errstr": {
                   "type": "string"
                 },
-                "insertedIds": {
+                "username": {
                   "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Alter user information",
+        "description": "",
+        "operationId": "postUserInfo",
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "parameters": [
+          {
+            "name": "firstname",
+            "in": "formData",
+            "required": false,
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "lastname",
+            "in": "formData",
+            "required": false,
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "self_bio",
+            "in": "formData",
+            "required": false,
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "institution",
+            "in": "formData",
+            "required": false,
+            "type": "string",
+            "description": ""
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/ApiResponse"
+            }
+          }
+        }
+      }
+    },
+    "/user/password": {
+      "post": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Change user password",
+        "description": "Change the password of the currently logged in user",
+        "operationId": "putUserPassword",
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "parameters": [
+          {
+            "name": "curPassword",
+            "in": "formData",
+            "type": "string",
+            "required": true,
+            "description": "The user's current password in cleartext"
+          },
+          {
+            "name": "newPassword",
+            "in": "formData",
+            "type": "string",
+            "required": true,
+            "description": "The new password for the user in cleartext"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ApiResponse"
+            }
+          },
+          "default": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ApiResponse"
+            }
+          }
+        }
+      }
+    },
+    "/user/emails": {
+      "post": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Add a user email address",
+        "description": "",
+        "operationId": "postUserEmail",
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "parameters": [
+          {
+            "name": "username",
+            "in": "formData",
+            "type": "string",
+            "required": true,
+            "description": "The name of the user to get emails of"
+          },
+          {
+            "name": "email",
+            "in": "formData",
+            "type": "string",
+            "required": true,
+            "description": "The email address to add"
+          },
+          {
+            "name": "isprimary",
+            "in": "formData",
+            "type": "boolean",
+            "required": false,
+            "description": "Whether the new email is the primary email"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ApiResponse"
+            }
+          },
+          "default": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/ApiResponse"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Delete a user email address",
+        "description": "",
+        "operationId": "deleteUserEmail",
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "parameters": [
+          {
+            "name": "username",
+            "in": "formData",
+            "type": "string",
+            "required": true,
+            "description": "The name of the user to delete emails of"
+          },
+          {
+            "name": "email",
+            "in": "formData",
+            "type": "string",
+            "required": true,
+            "description": "The email address to delete"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ApiResponse"
+            }
+          },
+          "default": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/ApiResponse"
+            }
+          }
+        }
+      }
+    },
+    "/users": {
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Create a new user",
+        "description": "",
+        "operationId": "createUser",
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "parameters": [
+          {
+            "name": "username",
+            "in": "formData",
+            "required": true,
+            "type": "string",
+            "description": "The name of the user to change data for"
+          },
+          {
+            "name": "password",
+            "in": "formData",
+            "type": "string",
+            "required": true,
+            "description": "The password for the user"
+          },
+          {
+            "name": "firstname",
+            "in": "formData",
+            "required": false,
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "lastname",
+            "in": "formData",
+            "required": false,
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "self_bio",
+            "in": "formData",
+            "required": false,
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "institution",
+            "in": "formData",
+            "required": false,
+            "type": "string",
+            "description": ""
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/ApiResponse"
+            }
+          }
+        }
+      }
+    },
+    "/users/{username}": {
+      "get": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Get user information",
+        "description": "",
+        "operationId": "getUserInfo",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "The name of the user to get info for"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "errno": {
+                  "type": "number"
+                },
+                "errstr": {
+                  "type": "string"
+                },
+                "userJson": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{username}/emails": {
+      "get": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Get user email addresses",
+        "description": "Gets all email addresses associated with a user",
+        "operationId": "getUserEmail",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "The name of the user to get emails of"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "errno": {
+                  "type": "number"
+                },
+                "errstr": {
+                  "type": "string"
+                },
+                "emails": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
                 }
               }
             }
@@ -671,7 +750,8 @@
       }
     },
     "ArticleReference": {
-      "type": "string"
+      "type": "string",
+      "description": "An ArticleReference is a reference, much like what might be found in the \"References\" or \"Works Cited\" section of an article"
     },
     "ArticleJSON": {
       "description": "JSON data of article straight from MongoDB. No strict guarantees are made on the existence of any given field, but common ones are given here.",
