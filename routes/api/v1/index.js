@@ -3,7 +3,7 @@ const
 	bodyParser = require('body-parser'),
 	multer = require('multer')({dest:'./uploads'}),
 	searchController = require.main.require('./controllers/api/v1/search'),
-	articleController = require.main.require('./controllers/api/v1/article'),
+	articleController = require.main.require('./controllers/api/v1/articles'),
 	authRouter = require('./auth'),
 	userRouter = require('./user'),
 	usersRouter = require('./users');
