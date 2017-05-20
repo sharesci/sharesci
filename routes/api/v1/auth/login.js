@@ -1,7 +1,7 @@
 const
 	express = require('express'),
 	bodyParser = require('body-parser'),
-	loginController = require('../../../../controllers/api/v1/auth/login');
+	loginController = require.main.require('./controllers/api/v1/auth/login');
 
 var router = express.Router();
 

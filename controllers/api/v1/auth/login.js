@@ -1,5 +1,5 @@
 const
-	pgdb = require('../../../../util/sharesci-pg-db'),
+	pgdb = require.main.require('./util/sharesci-pg-db'),
 	bcrypt = require('bcrypt');
 
 

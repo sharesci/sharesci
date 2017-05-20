@@ -1,5 +1,5 @@
 const
-	tls_options = require('../../../../util/tls-options'),
+	tls_options = require.main.require('./util/tls-options'),
 	fs = require('fs'),
 	request = require('request');
 
