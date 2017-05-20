@@ -28,7 +28,7 @@ export class ArticleComponent implements OnInit {
 
     showArticleData(articleWrapper: IArticleWrapper) {
         if (articleWrapper.errno == 0) {
-            this.article = articleWrapper.articleJson[0];
+            this.article = articleWrapper.articleJson;
         }
     }
 

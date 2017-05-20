@@ -45,7 +45,10 @@ function getArticle(req, res) {
 				responseJson.errno = 1;	
 			} else {
 				responseJson.errno = 0;
-				responseJson.articleJson = articleJson;
+				responseJson.articleJson = null;
+				if(articleJson.length > 0) {
+					responseJson.articleJson = articleJson[0];
+				}
 			}
 			db.close();
 			if(!usePdf) {

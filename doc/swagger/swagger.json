@@ -137,10 +137,7 @@
                   "type": "number"
                 },
                 "articleJson": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/ArticleJSON"
-                  }
+                  "$ref": "#/definitions/ArticleJSON"
                 }
               }
             },
