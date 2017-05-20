@@ -11,6 +11,7 @@ const
 function getArticle(req, res) {
 	var responseJson = {
 		errno: 0,
+		errstr: '',
 		articleJson: null
 	};
 

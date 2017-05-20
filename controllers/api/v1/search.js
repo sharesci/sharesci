@@ -7,6 +7,7 @@ const
 function index(req, res) {
 	var responseJSON = {
 		errno: 0,
+		errstr: '',
 		results: []
 	};
 
