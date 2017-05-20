@@ -18,20 +18,28 @@
 							"var jsonData = JSON.parse(responseBody);",
 							"",
 							"var schema = {",
-							" \"errno\": {",
-							"     type: \"integer\"",
-							" },",
-							" \"errstr\": {",
-							"     type: \"string\"",
-							" },",
-							" \"emails\": {",
-							"     type: \"array\",",
-							"     items: {",
-							"         type: \"string\"",
-							"     }",
-							" }",
+							"    \"$schema\": \"http://json-schema.org/draft-04/schema#\",",
+							"    type: 'object',",
+							"    properties: {",
+							"        \"errno\": {",
+							"            type: \"integer\"",
+							"        },",
+							"        \"errstr\": {",
+							"            type: \"string\"",
+							"        },",
+							"        \"emails\": {",
+							"            type: \"array\",",
+							"            items: {",
+							"                type: \"string\"",
+							"            }",
+							"        }",
+							"    },",
+							"    required: ['errno', 'errstr', 'emails']",
 							"};",
-							"tests[\"Valid Data\"] = tv4.validate(jsonData, schema);"
+							"tests[\"Valid Data\"] = tv4.validate(jsonData, schema);",
+							"if(tv4.error) {",
+							"    console.log(\"Validation failed: \", tv4.error);",
+							"}"
 						]
 					}
 				}
@@ -76,25 +84,33 @@
 						"exec": [
 							"var jsonData = JSON.parse(responseBody);",
 							"var schema = {",
-							"    \"errno\": {",
-							"        type: \"integer\"",
-							"    },",
-							"    \"errstr\": {",
-							"        type: \"string\"",
-							"    },",
-							"    \"userJson\": {",
-							"        type: \"object\",",
-							"        properties: {",
-							"          \"username\": \"string\",",
-							"          \"firstname\": \"string\",",
-							"          \"lastname\": \"string\",",
-							"          \"institution\": \"string\",",
-							"          \"self_bio\": \"string\"",
+							"    \"$schema\": \"http://json-schema.org/draft-04/schema#\",",
+							"    type: 'object',",
+							"    properties: {",
+							"        \"errno\": {",
+							"            type: \"integer\"",
+							"        },",
+							"        \"errstr\": {",
+							"            type: \"string\"",
+							"        },",
+							"        \"userJson\": {",
+							"            type: \"object\",",
+							"            properties: {",
+							"              \"username\": \"string\",",
+							"              \"firstname\": \"string\",",
+							"              \"lastname\": \"string\",",
+							"              \"institution\": \"string\",",
+							"              \"self_bio\": \"string\"",
+							"            }",
 							"        }",
-							"    }",
+							"    },",
+							"    required: ['errno', 'errstr', 'userJson']",
 							"};",
 							"",
 							"tests[\"Valid Data\"] = tv4.validate(jsonData, schema);",
+							"if(tv4.error) {",
+							"    console.log(\"Validation failed: \", tv4.error);",
+							"}",
 							"",
 							"tests[\"Response time is less than 200ms\"] = responseTime < 200;"
 						]
@@ -139,15 +155,30 @@
 						"type": "text/javascript",
 						"exec": [
 							"var jsonData = JSON.parse(responseBody);",
+							"",
 							"var schema = {",
-							"  \"errno\": \"integer\",",
-							"  \"errstr\": \"string\",",
-							"  \"username\": \"string\"",
+							"    \"$schema\": \"http://json-schema.org/draft-04/schema#\",",
+							"    type: \"object\",",
+							"    properties: {",
+							"        \"errno\": {",
+							"            type: \"integer\"",
+							"        },",
+							"        \"errstr\": {",
+							"            type: \"string\"",
+							"        },",
+							"        'username': {",
+							"            type: [\"string\", \"null\"]",
+							"        }",
+							"    },",
+							"    required: ['errno', 'errstr', 'username']",
 							"};",
 							"",
 							"tests[\"Response time is less than 200ms\"] = responseTime < 200;",
 							"",
-							"tests[\"Valid Data\"] = tv4.validate(jsonData, schema);"
+							"tests[\"Valid Data\"] = tv4.validate(jsonData, schema);",
+							"if(tv4.error) {",
+							"    console.log(\"Validation failed: \", tv4.error);",
+							"}"
 						]
 					}
 				}
@@ -172,15 +203,23 @@
 							"var jsonData = JSON.parse(responseBody);",
 							"",
 							"var schema = {",
-							"  \"errno\": {",
-							"      type: \"integer\"",
-							"  },",
-							"  \"errstr\": {",
-							"      type: \"string\"",
-							"  }",
+							"    \"$schema\": \"http://json-schema.org/draft-04/schema#\",",
+							"    type: 'object',",
+							"    properties: {",
+							"        \"errno\": {",
+							"            type: \"integer\"",
+							"        },",
+							"        \"errstr\": {",
+							"            type: \"string\"",
+							"        }",
+							"    },",
+							"    required: ['errno', 'errstr']",
 							"};",
 							"",
-							"tests[\"Valid Data\"] = tv4.validate(jsonData, schema);"
+							"tests[\"Valid Data\"] = tv4.validate(jsonData, schema);",
+							"if(tv4.error) {",
+							"    console.log(\"Validation failed: \", tv4.error);",
+							"}"
 						]
 					}
 				}
@@ -218,6 +257,20 @@
 		},
 		{
 			"name": "https://sharesci.org/api/v1/user/emails",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"tests[\"Correct Response\"] = jsonData.errno === 0 && (typeof jsonData.errstr === 'string');",
+							"",
+							"tests[\"Response time is less than 200ms\"] = responseTime < 200;"
+						]
+					}
+				}
+			],
 			"request": {
 				"url": "https://sharesci.org/api/v1/user/emails",
 				"method": "POST",
@@ -239,6 +292,20 @@
 		},
 		{
 			"name": "https://sharesci.org/api/v1/user/emails",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"tests[\"Correct Response\"] = jsonData.errno === 0 && (typeof jsonData.errstr === 'string');",
+							"",
+							"tests[\"Response time is less than 200ms\"] = responseTime < 200;"
+						]
+					}
+				}
+			],
 			"request": {
 				"url": "https://sharesci.org/api/v1/user/emails",
 				"method": "DELETE",
@@ -275,12 +342,26 @@
 							"var jsonData = JSON.parse(responseBody);",
 							"",
 							"var schema = {",
-							"    \"errno\": {",
-							"        type: \"integer\"",
+							"    \"$schema\": \"http://json-schema.org/draft-04/schema#\",",
+							"    type: 'object',",
+							"    properties: {",
+							"        \"errno\": {",
+							"            type: \"integer\"",
+							"        },",
+							"        \"errstr\": {",
+							"            type: \"string\"",
+							"        },",
+							"        \"articleJson\": {",
+							"            type: \"object\",",
+							"                properties: {",
+							"                    '_id': {",
+							"                        type: 'string'",
+							"                    }",
+							"                },",
+							"                required: ['_id']",
+							"        }",
 							"    },",
-							"    \"articleJson\": {",
-							"        type: \"object\"",
-							"    }",
+							"    required: ['articleJson', 'errno', 'errstr']",
 							"};",
 							"",
 							"tests[\"Valid Data\"] = tv4.validate(jsonData, schema);",
@@ -319,6 +400,83 @@
 				"header": [],
 				"body": {},
 				"description": "Get article metadata"
+			},
+			"response": []
+		},
+		{
+			"name": "http://sharesci.org/api/v1/search?any=fft",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"var schema = {",
+							"    \"$schema\": \"http://json-schema.org/draft-04/schema#\",",
+							"    type: 'object',",
+							"    properties: {",
+							"        \"errno\": {",
+							"            type: \"integer\"",
+							"        },",
+							"        \"errstr\": {",
+							"            type: \"string\"",
+							"        },",
+							"        \"results\": {",
+							"            type: \"array\",",
+							"            items: {",
+							"                type: 'object',",
+							"                properties: {",
+							"                    '_id': {",
+							"                        type: 'string'",
+							"                    }",
+							"                },",
+							"                required: ['_id']",
+							"            }",
+							"        }",
+							"    },",
+							"    required: ['results', 'errno', 'errstr']",
+							"};",
+							"",
+							"tests[\"Valid Data\"] = tv4.validate(jsonData, schema);",
+							"if(tv4.error) {",
+							"    console.log(\"Validation failed: \", tv4.error);",
+							"}",
+							"",
+							"tests[\"Response time is less than 500ms\"] = responseTime < 2000;"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "http://sharesci.org/api/v1/search?any=fft",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": "Search API basic validation test (search for FFT)"
+			},
+			"response": []
+		},
+		{
+			"name": "https://sharesci.org/api/v1/auth/logout",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"tests[\"Response time is less than 200ms\"] = responseTime < 200;"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "https://sharesci.org/api/v1/auth/logout",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": "Logout test"
 			},
 			"response": []
 		}
