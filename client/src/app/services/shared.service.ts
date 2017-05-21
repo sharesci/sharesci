@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core'
 import { Observable } from 'rxjs';
 import { Subject }    from 'rxjs/Subject';
-import { ISearchResults } from '../entities/search-results.interface.js'
+import { ISearchResults } from '../models/datacontracts/search-results.interface.js'
 
 @Injectable()
 export class SharedService {

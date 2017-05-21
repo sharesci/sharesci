@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { ISearchResults } from '../../entities/search-results.interface.js';
+import { ISearchResults } from '../../models/datacontracts/search-results.interface.js';
 import { SearchService } from '../../services/search.service.js';
 import { PagerService } from '../../services/pager.service.js';
 import { ArticleService } from '../../services/article.service.js';

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { User } from '../../entities/user.entity.js';
+import { User } from '../../models/entities/user.entity.js';
 import { AccountService } from '../../services/account.service.js';
 import { AuthenticationService } from '../../services/authentication.service.js';
 import { UserInfoValidatonService, Error } from './user-info-validaton.service.js';

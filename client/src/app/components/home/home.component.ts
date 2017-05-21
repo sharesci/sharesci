@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ISearchResults } from '../../entities/search-results.interface.js';
+import { ISearchResults } from '../../models/datacontracts/search-results.interface.js';
 import { SearchService } from '../../services/search.service.js';
 
 @Component({

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core'
 import { Http, Response, Headers, RequestOptions, URLSearchParams } from '@angular/http'
 import { Observable } from 'rxjs';
 import { AppConfig } from '../app.config.js';
-import { User } from '../entities/user.entity.js';
+import { User } from '../models/entities/user.entity.js';
 import 'rxjs/add/operator/map';
 
 @Injectable()
@@ -18,7 +18,7 @@ export class AccountService {
         data.append('firstname', user.firstname);
         data.append('lastname', user.lastname);
         data.append('institution', user.institution);
-        data.append('self_bio', user.self_bio);
+        data.append('self_bio', user.self_bio);        
 
         return this._http.post(`${this._config.apiUrl}/users`, data)
             .map((response: Response) => response.json());
@@ -49,7 +49,7 @@ export class AccountService {
 
     addUserEmail(username: string, email: string): Observable<any> {
         let data = new URLSearchParams();
-        data.append('email', email);
+        data.append('email', email);        
 
         return this._http.post(`${this._config.apiUrl}/user/emails`, data)
             .map((response: Response) => { return response.json(); })

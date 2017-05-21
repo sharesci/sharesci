@@ -3,7 +3,7 @@ import { Router, NavigationStart } from '@angular/router';
 import { AuthenticationService } from '../../services/authentication.service.js'
 import { SearchService } from '../../services/search.service.js';
 import { SharedService } from '../../services/shared.service.js';
-import { ISearchResults } from '../../entities/search-results.interface.js';
+import { ISearchResults } from '../../models/datacontracts/search-results.interface.js';
 import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/filter';
 

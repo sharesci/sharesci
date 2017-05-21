@@ -13,11 +13,11 @@ export class ArticleService {
 
     getArticle(id: string, pdf: boolean): Observable<any> {
         let queryString = new URLSearchParams();
-	let articleUrl = `${this._config.apiUrl}/articles/${id}`;
-        if (pdf) {
-            queryString.append('pdf', '1');
-            return this._http.get(`${articleUrl}?${queryString.toString()}`, { responseType: ResponseContentType.Blob })
-                .map((res) => { return new Blob([res.blob()], { type: 'application/pdf' })})
+	    let articleUrl = `${this._config.apiUrl}/articles/${id}`;
+            if (pdf) {
+                queryString.append('pdf', '1');
+                return this._http.get(`${articleUrl}?${queryString.toString()}`, { responseType: ResponseContentType.Blob })
+                    .map((res) => { return new Blob([res.blob()], { type: 'application/pdf' })})
             }
         
         return this._http.get(articleUrl)

@@ -8,9 +8,3 @@ export class User {
 
     constructor() { }
 }
-
-export interface IUserWrapper {
-    errno: number,
-    errstr: string,
-    userJson: User
-}

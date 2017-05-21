@@ -9,7 +9,7 @@ export class SearchService {
     
     constructor(private _http: Http, private _config: AppConfig) { }
 
-    private _searchUrl = this._config.apiUrl + '/api/v1/search?';
+    private _searchUrl = this._config.apiUrl + '/search?';
 
     search(searchToken: string, offset = 0, maxResult = 10): Observable<any> {
         let queryString = new URLSearchParams();
