@@ -1,14 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { SharedService } from '../../services/shared.service.js';
-import { ArticleService } from '../../services/article.service.js'
-import { IArticle } from '../../models/datacontracts/article.interface.js'
-import { Article } from '../../models/entities/article.entity.js'
+import { SharedService } from '../../services/shared.service';
+import { ArticleService } from '../../services/article.service'
+import { IArticle } from '../../models/datacontracts/article.interface'
+import { Article } from '../../models/entities/article.entity'
+import { saveAs } from 'file-saver'
 
 @Component({
-    moduleId: module.id,
-    templateUrl: 'article.component.html',
-    styleUrls: ['article.component.css']
+    templateUrl: './article.component.html',
+    styleUrls: ['./article.component.css']
 })
 
 export class ArticleComponent implements OnInit {
@@ -33,7 +33,6 @@ export class ArticleComponent implements OnInit {
     }
 
     viewPdf(download: boolean) {
-        var saveAs = require('file-saver');
         this._articleService.getArticle(this.article._id, true)
             .subscribe(
             results => {

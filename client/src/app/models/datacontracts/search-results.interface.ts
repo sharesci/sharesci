@@ -1,4 +1,4 @@
-import { Author } from '../entities/author.entity.js'
+import { Author } from '../entities/author.entity'
 
 export interface ISearchResults {
     errno: number

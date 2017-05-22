@@ -5,15 +5,17 @@ import { RouterModule, Routes } from '@angular/router';
 import { HttpModule } from '@angular/http';
 import { FileUploadModule } from 'ng2-file-upload';
 
-import { AppComponent } from './app.component.js'
-import { LoginComponent } from './components/login/login.component.js'
-import { NavbarComponent } from './components/navbar/navbar.component.js'
-import { HomeComponent } from './components/home/home.component.js'
-import { CreateAccountComponent } from './components/create-account/create-account.component.js'
-import { SearchResultComponent } from './components/search-result/search-result.component.js'
-import { ProfileComponent } from './components/profile/profile.component.js'
-import { ArticleComponent } from './components/article/article.component.js'
-import { ArticleUploadComponent } from './components/article-upload/article-upload.component.js'
+import { AppComponent } from './app.component'
+import { LoginComponent } from './components/login/login.component'
+import { NavbarComponent } from './components/navbar/navbar.component'
+import { HomeComponent } from './components/home/home.component'
+import { CreateAccountComponent } from './components/create-account/create-account.component'
+import { SearchResultComponent } from './components/search-result/search-result.component'
+import { ProfileComponent } from './components/profile/profile.component'
+import { ArticleComponent } from './components/article/article.component'
+import { ArticleUploadComponent } from './components/article-upload/article-upload.component'
+
+import * as $ from 'jquery';
 
 const appRoutes: Routes = [
   { path: 'login', component: LoginComponent },

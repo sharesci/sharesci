@@ -19,7 +19,7 @@ router.get('/', (req, res, next) => {
 router.get('/', express.static(__dirname + '/../client'));
 
 router.get('/', function(req, res) {
-		res.sendFile(path.resolve('client/aot/index.html'));
+		res.sendFile(path.resolve('client/dist/index.html'));
 });
 router.use('/login', loginRouter);
 router.use('/logout', logoutRouter);

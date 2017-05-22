@@ -1,14 +1,13 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { User } from '../../models/entities/user.entity.js';
-import { AccountService } from '../../services/account.service.js';
-import { AuthenticationService } from '../../services/authentication.service.js';
-import { UserInfoValidatonService, Error } from './user-info-validaton.service.js';
+import { User } from '../../models/entities/user.entity';
+import { AccountService } from '../../services/account.service';
+import { AuthenticationService } from '../../services/authentication.service';
+import { UserInfoValidatonService, Error } from './user-info-validaton.service';
 
 @Component({
-    moduleId: module.id,
     selector: 'ss-account',
-    templateUrl: 'create-account.component.html',
+    templateUrl: './create-account.component.html',
     providers: [UserInfoValidatonService]
 })
 

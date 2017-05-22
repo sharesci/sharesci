@@ -29,7 +29,7 @@ app.use(express_session({
 	cookie: { maxAge: 16*60*60*1000 }
 }));
 app.use('/', rootRouter);
-app.use('/', express.static(__dirname + '/client'));
+app.use('/', express.static(__dirname + '/client/dist'));
 
 http.createServer(app).listen(80);
 

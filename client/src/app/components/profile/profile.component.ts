@@ -1,14 +1,13 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { SharedService } from '../../services/shared.service.js';
-import { AccountService } from '../../services/account.service.js';
-import { User } from '../../models/entities/user.entity.js';
-import { IUserData } from '../../models/datacontracts/user-data.interface.js'
+import { SharedService } from '../../services/shared.service';
+import { AccountService } from '../../services/account.service';
+import { User } from '../../models/entities/user.entity';
+import { IUserData } from '../../models/datacontracts/user-data.interface'
 
 @Component({
-    moduleId: module.id,
-    templateUrl: 'profile.component.html',
-    styleUrls: ['profile.component.css']
+    templateUrl: './profile.component.html',
+    styleUrls: ['./profile.component.css']
 })
 
 export class ProfileComponent implements OnInit {

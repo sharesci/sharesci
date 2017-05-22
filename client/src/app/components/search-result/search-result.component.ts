@@ -1,16 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { ISearchResults } from '../../models/datacontracts/search-results.interface.js';
-import { SearchService } from '../../services/search.service.js';
-import { PagerService } from '../../services/pager.service.js';
-import { ArticleService } from '../../services/article.service.js';
+import { ISearchResults } from '../../models/datacontracts/search-results.interface';
+import { SearchService } from '../../services/search.service';
+import { PagerService } from '../../services/pager.service';
+import { ArticleService } from '../../services/article.service';
+import { saveAs } from 'file-saver'
 
 @Component({
-    moduleId: module.id,
     selector: 'ss-search-result',
-    templateUrl: 'search-result.component.html',
-    styleUrls: ['search-result.component.css']
+    templateUrl: './search-result.component.html',
+    styleUrls: ['./search-result.component.css']
 })
 
 export class SearchResultComponent implements OnInit {
@@ -77,7 +77,6 @@ export class SearchResultComponent implements OnInit {
     }
 
     private viewPdf(id: string, download: boolean, title?: string) {
-        var saveAs = require('file-saver');
         this._articleService.getArticle(id, true)
             .subscribe(
             results => {

@@ -1,4 +1,4 @@
-import { User } from '../../models/entities/user.entity.js'
+import { User } from '../../models/entities/user.entity'
 
 export class UserInfoValidatonService {
 

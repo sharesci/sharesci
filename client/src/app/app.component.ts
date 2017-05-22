@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
-import { AuthenticationService } from './services/authentication.service.js'
-import { AccountService } from './services/account.service.js'
-import { SearchService } from './services/search.service.js'
-import { SharedService } from './services/shared.service.js'
-import { PagerService } from './services/pager.service.js'
-import { ArticleService } from './services/article.service.js'
-import { AppConfig } from './app.config.js'
+import { AuthenticationService } from './services/authentication.service'
+import { AccountService } from './services/account.service'
+import { SearchService } from './services/search.service'
+import { SharedService } from './services/shared.service'
+import { PagerService } from './services/pager.service'
+import { ArticleService } from './services/article.service'
+import { AppConfig } from './app.config'
 
 
 @Component({

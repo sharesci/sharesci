@@ -1,4 +1,4 @@
-import { Author } from './author.entity.js'
+import { Author } from './author.entity'
 
 export class Article {
     _id: string = ''

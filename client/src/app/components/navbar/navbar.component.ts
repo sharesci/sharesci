@@ -1,16 +1,15 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Router, NavigationStart } from '@angular/router';
-import { AuthenticationService } from '../../services/authentication.service.js'
-import { SearchService } from '../../services/search.service.js';
-import { SharedService } from '../../services/shared.service.js';
-import { ISearchResults } from '../../models/datacontracts/search-results.interface.js';
+import { AuthenticationService } from '../../services/authentication.service'
+import { SearchService } from '../../services/search.service';
+import { SharedService } from '../../services/shared.service';
+import { ISearchResults } from '../../models/datacontracts/search-results.interface';
 import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/filter';
 
 @Component({
-    moduleId: module.id,
     selector: 'ss-navbar',
-    templateUrl: 'navbar.component.html'
+    templateUrl: './navbar.component.html'
 })
 
 export class NavbarComponent {

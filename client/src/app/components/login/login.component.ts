@@ -1,17 +1,16 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthenticationService } from '../../services/authentication.service.js';
-import { SharedService } from '../../services/shared.service.js';
+import { AuthenticationService } from '../../services/authentication.service';
+import { SharedService } from '../../services/shared.service';
 
 @Component({
-    moduleId: module.id,
     selector: 'ss-login',
-    templateUrl: 'login.component.html',
-    styleUrls: ['login.component.css'],
+    templateUrl: './login.component.html',
+    styleUrls: ['./login.component.css'],
 })
 
 export class LoginComponent {
-    logo: string = 'src/media/logo.jpg';
+    logo: string = 'assets/logo.jpg';
     username: string;
     password: string;
     errstr: string;
