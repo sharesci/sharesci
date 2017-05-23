@@ -352,7 +352,7 @@
 							"            type: \"string\"",
 							"        },",
 							"        \"articleJson\": {",
-							"            type: \"object\",",
+							"            type: [\"object\", 'null'],",
 							"                properties: {",
 							"                    '_id': {",
 							"                        type: 'string'",
@@ -376,7 +376,7 @@
 			],
 			"request": {
 				"url": {
-					"raw": "http://sharesci.org/api/v1/articles/:id",
+					"raw": "http://sharesci.org/api/v1/articles/:id/:version",
 					"protocol": "http",
 					"auth": {},
 					"host": [
@@ -387,12 +387,17 @@
 						"api",
 						"v1",
 						"articles",
-						":id"
+						":id",
+						":version"
 					],
 					"variable": [
 						{
 							"value": "58f4405735f1d34756346ae4",
 							"id": "id"
+						},
+						{
+							"value": "",
+							"id": "version"
 						}
 					]
 				},
@@ -477,6 +482,155 @@
 				"header": [],
 				"body": {},
 				"description": "Logout test"
+			},
+			"response": []
+		},
+		{
+			"name": "http://sharesci.org/api/v1/articles/:id/:version",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"var schema = {",
+							"    \"$schema\": \"http://json-schema.org/draft-04/schema#\",",
+							"    type: 'object',",
+							"    properties: {",
+							"        \"errno\": {",
+							"            type: \"integer\"",
+							"        },",
+							"        \"errstr\": {",
+							"            type: \"string\"",
+							"        },",
+							"        \"articleJson\": {",
+							"            type: [\"object\", 'null'],",
+							"                properties: {",
+							"                    '_id': {",
+							"                        type: 'string'",
+							"                    }",
+							"                },",
+							"                required: ['_id']",
+							"        }",
+							"    },",
+							"    required: ['articleJson', 'errno', 'errstr']",
+							"};",
+							"",
+							"tests[\"Valid Data\"] = tv4.validate(jsonData, schema);",
+							"if(tv4.error) {",
+							"    console.log(\"Validation failed: \", tv4.error);",
+							"}",
+							"",
+							"tests[\"Response time is less than 500ms\"] = responseTime < 500;"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": {
+					"raw": "http://sharesci.org/api/v1/articles/:id/:version",
+					"protocol": "http",
+					"auth": {},
+					"host": [
+						"sharesci",
+						"org"
+					],
+					"path": [
+						"api",
+						"v1",
+						"articles",
+						":id",
+						":version"
+					],
+					"variable": [
+						{
+							"value": "5923540a39fd2b1a04ee57e6",
+							"id": "id"
+						},
+						{
+							"value": "v1",
+							"id": "version"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": "Test article getter with version"
+			},
+			"response": []
+		},
+		{
+			"name": "http://sharesci.org/api/v1/articles/:id/:version",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"tests['404 status code'] = responseCode.code === 404",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"var schema = {",
+							"    \"$schema\": \"http://json-schema.org/draft-04/schema#\",",
+							"    type: 'object',",
+							"    properties: {",
+							"        \"errno\": {",
+							"            type: \"integer\"",
+							"        },",
+							"        \"errstr\": {",
+							"            type: \"string\"",
+							"        },",
+							"        \"articleJson\": {",
+							"            type: 'null'",
+							"        }",
+							"    },",
+							"    required: ['articleJson', 'errno', 'errstr']",
+							"};",
+							"",
+							"tests[\"Valid Data\"] = tv4.validate(jsonData, schema);",
+							"if(tv4.error) {",
+							"    console.log(\"Validation failed: \", tv4.error);",
+							"}",
+							"",
+							"tests[\"Response time is less than 500ms\"] = responseTime < 500;"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": {
+					"raw": "http://sharesci.org/api/v1/articles/:id/:version",
+					"protocol": "http",
+					"auth": {},
+					"host": [
+						"sharesci",
+						"org"
+					],
+					"path": [
+						"api",
+						"v1",
+						"articles",
+						":id",
+						":version"
+					],
+					"variable": [
+						{
+							"value": "5923540a39fd2b1a04ee57e6",
+							"id": "id"
+						},
+						{
+							"value": "v1000000000",
+							"id": "version"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": "Test article get by version with nonexistent version."
 			},
 			"response": []
 		}

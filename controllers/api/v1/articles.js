@@ -16,6 +16,19 @@ function getArticle(req, res) {
 	};
 
 	var usePdf = (req.query.pdf === "1");
+	var version = ('version' in req.params && typeof req.params.version === 'string') ? new String(req.params.version) : 'v0';
+	if(!(/^v(\d+)$/).test(version)) {
+		responseJson.errno = 1;
+		responseJson.errstr = 'Incorrect version number format';
+		res.status(422).json(responseJson);
+		return;
+	}
+	try {
+		version = parseInt(version.slice(1));
+	} catch(err) {
+		console.log(err);
+		version = 0;
+	}
 
 	MongoClient.connect(mongo_url, function(err, db) {
 		if(err !== null) {
@@ -47,7 +60,20 @@ function getArticle(req, res) {
 				responseJson.errno = 0;
 				responseJson.articleJson = null;
 				if(articleJson.length > 0) {
-					responseJson.articleJson = articleJson[0];
+					let aj = articleJson[0];
+					if ('versions' in aj && version <= aj.versions.length && 0 < aj.versions.length) {
+						// Use slice() so negative indexes work
+						responseJson.articleJson = aj.versions.slice(version-1)[0];
+						responseJson.articleJson['_id'] = aj['_id'];
+					} else if(!('versions' in articleJson) && version === 0) {
+						// Unversioned article, so the whole blob represents v0.
+						responseJson.articleJson = aj;
+					} else {
+						responseJson.errno = 1;
+						responseJson.errstr = 'Version not found';
+						responseJson.articleJson = null;
+						res.status(404);
+					}
 				}
 			}
 			db.close();
@@ -119,20 +145,32 @@ function postArticle(req, res) {
 		}
 		metaJson['references'] = metaJson['references'] || [];
 		metaJson['created'] = curDateJson;
-		metaJson['fulltext_text'] = metaJson['fulltext_text'] || "";
 	}
 	else {
 		metaJson['_id'] = new ObjectId(metaJson['_id']);
 	}
 
+	let fullTextPromise = Promise.resolve(metaJson['fulltext_text'] || "");
+
 	if(req.files.length > 0) {
-		var fileinfo = req.files[0];
+		fullTextPromise = parseFullText(__dirname + '/../../../uploads/' + req.files[0].filename);
+		let fileinfo = req.files[0];
 		metaJson['file'] = {
 			'name': fileinfo['filename'],
 			'originalname': fileinfo['originalname'],
 			'mimetype': fileinfo['mimetype']
 		};
 	}
+
+	fullTextPromise = fullTextPromise.then((text) => {
+		metaJson['fulltext_text'] = text;
+		return metaJson['fulltext_text'];
+	})
+	.catch((err) => {
+		console.error(err);
+		metaJson['fulltext_text'] = metaJson['fulltext_text'] || "";
+		return metaJson['fulltext_text'];
+	});
 
 	MongoClient.connect(mongo_url, function(err, db) {
 		if(err !== null) {
@@ -141,41 +179,37 @@ function postArticle(req, res) {
 			return;
 		}
 		var handlerFunc = (err, data)=>{
-				if(err){
-					res.writeHead(500);
-					responseJson.errno = 1;	
-				} else {
-					responseJson.errno = 0;
-					responseJson.errstr = '';
-				}
-				if(data['insertedIds']) {
-					responseJson.insertedIds = data.insertedIds;
-				}
-				res.json(responseJson);
-				res.end();
-				if(req.files.length > 0) {
-					var fullTextPromise = parseFullText(__dirname + '/../../../uploads/' + req.files[0].filename);
-					fullTextPromise.then((text) => {
-						db.collection('papers').update({'_id': metaJson['_id']}, {"$set": {fulltext_text: text}}, (err, data) => {
-							if(err) {
-								console.error(error);
-							}
-							db.close();
-						});
-					})
-					.catch((err) => {
-						console.error(err);
-						db.close();
-					});
-				} else {
-					db.close();
-				}
-			};
-		if(metaJson['_id']) {
-			var cursor = db.collection('papers').update(queryJson, {'$set': metaJson}, handlerFunc);
-		} else {
-			var cursor = db.collection('papers').insert(metaJson, handlerFunc);
-		}
+			db.close();
+			if(err){
+				res.writeHead(500);
+				responseJson.errno = 1;	
+			} else {
+				responseJson.errno = 0;
+				responseJson.errstr = '';
+			}
+			if(data['insertedIds']) {
+				responseJson.insertedIds = data.insertedIds;
+			}
+			res.json(responseJson);
+			res.end();
+		};
+
+		fullTextPromise.then((text) => {
+			if(metaJson['_id']) {
+				db.collection('papers').update({'_id': metaJson['_id']}, {'$push': {'versions': metaJson}}, handlerFunc);
+			} else {
+				let docJson = {
+					'versions': [metaJson]
+				};
+				db.collection('papers').insert(docJson, handlerFunc);
+			}
+		})
+		.catch((err) => {
+			console.log(err);
+			responseJson.errno = 1;
+			responseJson.errstr = 'Unknown error';
+			res.status(500).json(responseJson);
+		});
 	});
 }
 

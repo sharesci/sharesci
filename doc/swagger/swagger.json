@@ -99,7 +99,7 @@
         "tags": [
           "articles"
         ],
-        "summary": "Get an article",
+        "summary": "Get an article (has equivalent behavior to GET /articles/{id}/v0)",
         "description": "Gets an article (metadata-only by default; PDF can be retrieved with parameter)",
         "operationId": "getArticle",
         "produces": [
@@ -112,6 +112,70 @@
             "type": "string",
             "required": true,
             "description": "The unique ID of the article (same as from ArticleAuthor model)"
+          },
+          {
+            "name": "pdf",
+            "in": "query",
+            "type": "number",
+            "required": false,
+            "description": "Can be 1 or 0 (default 0). The value \"1\" indicates that a PDF should be returned instead of metadata."
+          }
+        ],
+        "responses": {
+          "422": {
+            "description": "Missing article ID in query"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "default": {
+            "description": "Successful operation. If the query pdf field is 1, serves a PDF file. Else, serves the JSON metadata below (defined by the model ArticleJSON)",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "errno": {
+                  "type": "number"
+                },
+                "articleJson": {
+                  "$ref": "#/definitions/ArticleJSON"
+                }
+              }
+            },
+            "headers": {
+              "Content-type": {
+                "description": "The content type. Will be `application/pdf` if a PDF is being served, and not present otherwise (or potentially `application/json`)",
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/articles/{id}/{version}": {
+      "get": {
+        "tags": [
+          "articles"
+        ],
+        "summary": "Get a specific version of an article",
+        "description": "Gets an article (metadata-only by default; PDF can be retrieved with parameter)",
+        "operationId": "getArticleByVersion",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "The unique ID of the article (same as from ArticleAuthor model)"
+          },
+          {
+            "name": "version",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "The version to get (starting at v1, v2, v3, ...; use v0 to get the most recent version)"
           },
           {
             "name": "pdf",
