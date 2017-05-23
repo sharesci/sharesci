@@ -57,7 +57,7 @@
             "in": "formData",
             "required": true,
             "type": "string",
-            "description": "The metadata JSON of the new article (should be JSON with ArticleJSON schema). At least title field MUST be present; other fields are optional"
+            "description": "The metadata JSON of the new article (should be JSON with ArticleJSON schema). At least title field MUST be present; other fields are optional. If this object does NOT have an '_id' property, it will be inserted into the database and the '_id' of the inserted object will be returned. If this object DOES have an '_id' property, a new version will be added to the existing article (with matching _id). If the '_id' property is present in metaJson but no object with a matching _id exists, an error will be returned and the article will NOT be inserted into the database."
           },
           {
             "name": "file",
