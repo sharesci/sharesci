@@ -16,7 +16,7 @@ npm run build:aot
 nodejs copy-dist-files.js
 cd ..
 
-if [ ! -z "NO_DATABASE_SETUP" ] ; then
+if [ ! -z "$NO_DATABASE_SETUP" ] ; then
 	printf "Updating database schema...\n"
 	psql -d sharesci < script/pg_db_schema_setup.sql
 else
