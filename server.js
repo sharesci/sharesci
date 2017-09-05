@@ -31,12 +31,22 @@ app.use(express_session({
 app.use('/', rootRouter);
 app.use('/', express.static(__dirname + '/client/dist'));
 
-http.createServer(app).listen(80);
+try {
+	httpServer = http.createServer(app).listen(80);
+	httpServer.on('error', (err) => {
+		console.error('HTTP server error: ', err)
+	});
+	console.log("Started HTTP server at port 80");
+} catch (err) {
+	console.error("Failed to start HTTP server at port 80");
+}
 
 if (https_ok) {
 	try {
 		https.createServer(https_options, app).listen(443);
+		console.log("Started HTTPS server at port 443");
 	} catch (err) {
 		https_ok = false;
+		console.error("Failed to start HTTPS server at port 443");
 	}
 }
