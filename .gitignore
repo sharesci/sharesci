@@ -41,3 +41,6 @@ jspm_packages
 
 # Upload directory
 /uploads/*
+
+# Python pycaches
+__pycache__
