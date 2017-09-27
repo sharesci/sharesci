@@ -86,7 +86,14 @@ function getArticle(req, res) {
 				res.status(404).json({errno: 1, errstr: 'File not found'}).end();
 				return;
 			}
-			articleJson = articleJson[0];
+
+			// The responseJson.articleJson contains the desired
+			// version of the article, and it is the JSON for this
+			// version that has the relevant information about
+			// where the PDF file is stored.
+			// TODO: This is an ugly hack. articleJson shouldn't be
+			// getting reassigned like this all the time
+			articleJson = responseJson.articleJson;
 			if(!articleJson['file'] || !articleJson['file']['name']) {
 				res.status(404).json({errno: 1, errstr: 'File not found'}).end();
 				return;
