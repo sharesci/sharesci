@@ -4,6 +4,9 @@ original_dir="$(pwd)"
 SOURCE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SOURCE_DIR/.."
 
+sudo service mongod start
+sudo service postgresql start
+
 # Kill any currently-running server instances
 SERVER_PID="$(lsof -t -i:80 -sTCP:LISTEN)"
 if [ ! -z "$SERVER_PID" ] ; then
