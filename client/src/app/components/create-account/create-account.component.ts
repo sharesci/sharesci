@@ -54,7 +54,7 @@ export class CreateAccountComponent {
     }
 
     validate(event: any) {
-        let id = event.srcElement.id;
+        let id = event.target.id;
         let currentErr : Error = new Error(0, "");
         switch (id) {
             case "email":
