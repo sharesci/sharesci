@@ -1,7 +1,7 @@
 #!/bin/bash
 
+original_dir="$(pwd)"
 SOURCE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-
 cd "$SOURCE_DIR/.."
 
 # Kill any currently-running server instances
@@ -20,17 +20,10 @@ npm install
 cd client
 npm install
 npm run build
-nodejs copy-dist-files.js
 cd ..
-
-# Update the database if necessary
-if [[ "$DO_DATABASE_SETUP" =~ ^[Yy]([Ee][Ss])?$ ]] ; then
-	printf "Updating database schema...\n"
-	psql -d sharesci < script/pg_db_schema_setup.sql
-else
-	printf "\$DO_DATABASE_SETUP was not \"yes\". Skipping database schema update.\n"
-fi
 
 # Start the server
 nodejs "server.js" &
+
+cd "$original_dir"
 

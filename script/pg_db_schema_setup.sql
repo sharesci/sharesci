@@ -1,4 +1,4 @@
-\connect sharesci2;
+\connect sharesci;
 
 CREATE EXTENSION IF NOT EXISTS CITEXT;
 
