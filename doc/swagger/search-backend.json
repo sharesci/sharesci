@@ -1,0 +1,134 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "ShareSci backend search server API. This is indended for internal use, not external access.",
+    "version": "0.1.0",
+    "title": "ShareSci Internal Search Backend",
+    "contact": {
+      "email": "search-devteam@sharesci.org"
+    },
+    "license": {
+      "name": "GPL v3.0",
+      "url": "https://www.gnu.org/licenses/gpl.html"
+    }
+  },
+  "host": "searchapi.sharesci.org",
+  "basePath": "/",
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "paths": {
+    "/search": {
+      "get": {
+        "summary": "Search for articles",
+        "description": "",
+        "operationId": "getSearchResults",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "Query with match in any field (title, author, etc) of a document"
+          },
+          {
+            "name": "maxResults",
+            "in": "query",
+            "type": "number",
+            "required": false,
+            "description": "Limit the number of results returned"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "type": "number",
+            "required": false,
+            "description": "Get results starting at the nth result. Useful when combined with the maxResults parameter."
+          },
+          {
+            "name": "getFullDocs",
+            "in": "query",
+            "type": "boolean",
+            "required": false,
+            "description": "If true, get the full data for each document (in the \"documentJson\" field of the response). If false, return only document IDs. The server may not support fetching full documents, so even if this field is \"true\" it is the client's responsibility to check whether full document data is actually returned."
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "errno": {
+                  "type": "number"
+                },
+                "errstr": {
+                  "type": "string"
+                },
+                "numResults": {
+                  "type": "number",
+                  "description": "The number of results found (if maxResults was specified, not all will be included in the response"
+                },
+                "results": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/SearchResult"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notifynewdoc": {
+      "post": {
+        "summary": "Notify server of new document to trigger reindexing (WARNING: endpoint specification not complete)",
+        "parameters": [
+          {
+            "name": "_id",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "The ID of the new document. Highly recommended to include this, for performance reasons. Note, however, that excluding this parameter does not guarantee a full reindex of all documents."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "number"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "SearchResult": {
+      "type": "object",
+      "properties": {
+        "_id": {
+          "type": "string",
+          "description": "The unique ID of the article (used in API queries)"
+        },
+        "documentJson": {
+          "type": "object",
+          "description": "The JSON data representing the document. This may not be present depending on the request parameters."
+        },
+        "score": {
+          "type": "number",
+          "description": "The relevance score of the result (larger values are more relevant)"
+        }
+      }
+    }
+  },
+  "externalDocs": {
+    "description": "Fork us on GitHub",
+    "url": "https://github.com/sharesci/sharesci"
+  }
+}
