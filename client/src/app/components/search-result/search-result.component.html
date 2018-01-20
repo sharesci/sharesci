@@ -45,3 +45,19 @@
 		</li>
 	</ul>
 </div>
+
+<div class="container search-container">
+	<div class="mb20">
+		<h1>Wikipedia Results</h1>
+	</div>
+
+	<section class="col-xs-12 col-sm-6 col-md-12" *ngFor='let result of search_results?.results'>
+		<article class="search-result row">
+			<div class="col-xs-12 col-sm-12 col-md-8">
+				<h3><a [routerLink]="['/article', result._id]" title="">{{result.title}}</a></h3>
+				<ul class="meta-search list-inline">
+				</ul>
+			</div>
+		</article>
+	</section>
+</div>
