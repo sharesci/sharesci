@@ -2,7 +2,7 @@
   "swagger": "2.0",
   "info": {
     "description": "ShareSci backend search server API. This is indended for internal use, not external access.",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "title": "ShareSci Internal Search Backend",
     "contact": {
       "email": "search-devteam@sharesci.org"
@@ -21,7 +21,7 @@
   "paths": {
     "/search": {
       "get": {
-        "summary": "Search for articles",
+        "summary": "Search for articles based on a query string",
         "description": "",
         "operationId": "getSearchResults",
         "produces": [
@@ -55,6 +55,72 @@
             "type": "boolean",
             "required": false,
             "description": "If true, get the full data for each document (in the \"documentJson\" field of the response). If false, return only document IDs. The server may not support fetching full documents, so even if this field is \"true\" it is the client's responsibility to check whether full document data is actually returned."
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "errno": {
+                  "type": "number"
+                },
+                "errstr": {
+                  "type": "string"
+                },
+                "numResults": {
+                  "type": "number",
+                  "description": "The number of results found (if maxResults was specified, not all will be included in the response"
+                },
+                "results": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/SearchResult"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/related-docs": {
+      "get": {
+        "summary": "Search for articles similar to an input article",
+        "description": "",
+        "operationId": "getRelatedDocs",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "docid",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "Document ID of an existing document (the document for which related documents should be found)"
+          },
+          {
+            "name": "maxResults",
+            "in": "query",
+            "type": "number",
+            "required": false,
+            "description": "Limit the number of results returned"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "type": "number",
+            "required": false,
+            "description": "Get results starting at the nth result. Useful when combined with the maxResults parameter."
+          },
+          {
+            "name": "getFullDocs",
+            "in": "query",
+            "type": "boolean",
+            "required": false,
+            "description": "Same as for the /search endpoint. If true, get the full data for each document (in the \"documentJson\" field of the response). If false, return only document IDs. The server may not support fetching full documents, so even if this field is \"true\" it is the client's responsibility to check whether full document data is actually returned."
           }
         ],
         "responses": {
