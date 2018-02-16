@@ -77,6 +77,26 @@ function getArticle(req, res) {
 				}
 			}
 			db.close();
+
+			// For user recommendations: if user is logged in,
+			// post article id to users history collection
+			if(req.session.user_id) {
+				var articleId = JSON.parse(JSON.stringify(responseJson.articleJson._id));
+				var options = {
+					method: 'POST',
+					uri: 'http://127.0.0.1/api/v1/userHistory',
+					body: {
+						'type': 'docIds',
+						'value': articleId,
+						'userid': req.session.user_id
+					},
+					json: true
+				};
+				rp(options).catch(function(err) {
+					console.error('userHistory article post request unsuccessful');
+				});
+			}
+
 			if(!usePdf) {
 				res.json(responseJson);
 				res.end();
@@ -210,6 +230,21 @@ function postArticle(req, res) {
 				};
 				db.collection('papers').insert(docJson, handlerFunc);
 			}
+
+			// Notify the server of new document upload for reindexing purposes
+			var newDocOptions = {
+				method: 'POST',
+				uri: 'https://127.0.0.1/api/v1/notifyNewDocs',
+				body: {
+					_id: docJson._id
+				},
+				json: true
+			};
+			
+			rp(newDocOptions).catch(function(err) { 
+				console.error('notifyNewDocs post request unsuccessful');
+			});
+			
 		})
 		.catch((err) => {
 			console.log(err);
@@ -238,4 +273,3 @@ module.exports = {
 	getArticle: getArticle,
 	postArticle: postArticle
 };
-
