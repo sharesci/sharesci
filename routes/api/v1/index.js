@@ -7,7 +7,8 @@ const
 	articleController = require.main.require('./controllers/api/v1/articles'),
 	searchWikiController = require.main.require('./controllers/api/v1/searchWiki'),
 	wikiController = require.main.require('./controllers/api/v1/wiki'),
-	commentsController = require.main.require('./controllers/api/v1/comments'),
+	relatedDocsController = require.main.require('./controllers/api/v1/relatedDocs'),
+	relatedDocumentsController = require.main.require('./controllers/api/v1/related-docs'),
 	authRouter = require('./auth'),
 	userRouter = require('./user'),
 	usersRouter = require('./users');
@@ -28,9 +29,11 @@ router.get('/articles/:id/:version(v\\d+)', articleController.getArticle);
 router.post('/articles', multer.array('fulltextfile', 10));
 router.post('/articles', articleController.postArticle);
 
-router.get('/comments/:id', commentsController.getComments);
-router.post('/comments', commentsController.postComments);
+router.post('/notifyNewDocs', notifyNewDocsController.newDoc);
+
+router.get('/relatedDocs', relatedDocsController.relatedDocs);
+router.get('/related-docs', relatedDocumentsController.relatedDocuments);
+
+router.post('/userHistory', userHistoryController.userHistory);
 
 module.exports = router;
-
-
