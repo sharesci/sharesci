@@ -1,10 +1,10 @@
 const
 	express = require('express'),
 	assert = require('assert'),
-	ObjectId = require('mongodb').ObjectId,
-	MongoClient = require('mongodb').MongoClient,
-	mongo_url = 'mongodb://localhost:27017/sharesci';
-
+	session = require('express-session'),
+	request = require('request'),
+	rp = require('request-promise'),
+	http = require('http');
 
 function relatedDocs(req, res) {
 	var responseJSON = {
@@ -13,39 +13,55 @@ function relatedDocs(req, res) {
 		results: []
 	};
 
-	MongoClient.connect(mongo_url, function(err, db) {
+	var searchParams = JSON.parse(JSON.stringify(req.query));
 
-		if (err !== null) {
-			console.error("Error opening db");
-			reject(err);
-			return;
-		}
-		var cursor;
+	if(!searchParams['docid']) {
+		responseJSON.errno = 5;
+		responseJSON.errstr = 'Valid docid required';
+		res.status(422).json(responseJSON);
+		res.end();
+		return;
+	}
+	if(!searchParams.offset) {
+		searchParams.offset = 0;
+	}
+	if(searchParams.maxResults) {
+		searchParams.maxResults = parseInt(searchParams.maxResults);
+	}
+	if(!searchParams.uri) {
+		searchParams['uri'] = 'http://127.0.0.1/api/v1/related-docs';
+	}
+	if(!searchParams.collection) {
+		searchParams['collection'] = 'papers';
+	}
+	if(!searchParams.engine) {
+		searchParams['engine'] = 'mongo';
+	}
+	
+	var options = {
+		uri: searchParams.uri,
+		qs: {
+			'offset': searchParams.offset,
+			'docid': searchParams.docid,
+			'maxResults': searchParams.maxResults,
+			'collection': searchParams.collection,
+			'engine': searchParams.engine
+		},
+		json: true
+	};
 
-		try {
-			cursor = db.collection('papers').find( { '_id': req.params.id } );
-		} catch(err) {
-			console.error(err);
-			res.status(500).json({ 
-				errno: 1, 
-				errstr: 'Unknown error' 
-			});
-			return;
-		}
-
-		cursor.toArray((err, results) => {
-			if(err){
-				res.writeHead(500);
-				responseJson.errno = 1;
-				responseJson.errstr = err;
-			} else {
-				responseJson.errno = 0;
-				responseJson.results = results.results;
-			}
-			db.close();
-			res.json(responseJson);
-			res.end();
-		});
+	rp(options)
+	.then((results) => {
+		responseJSON.results = results.results;
+		responseJSON.numResults = results.numHits;
+		res.json(responseJSON);
+		res.end();
+	})
+	.catch(function(err) {
+		responseJSON.errno = 1;
+		responseJSON.errstr = err.error;
+		res.json(responseJSON);
+		res.end();
 	});
 }
 
