@@ -17,6 +17,8 @@ export class NavbarComponent {
     hideLoginBtn: boolean = false;
     searchToken: string = '';
     user: string = '';
+    searchTypes: string[] = ['word2vec', 'paragraphVector', 'tfidf'];
+    selectedSearchType = this.searchTypes[0];
 
     constructor(private _authenticationService : AuthenticationService,
                 private _router: Router,
@@ -34,6 +36,7 @@ export class NavbarComponent {
         
         this.user = localStorage.getItem("currentUser") || "";
         this.hideLoginBtn = !!this.user;
+        this._sharedService.setSearchType(this.selectedSearchType);
     }
 
     setUser(isUserLoggedIn: boolean) {
@@ -66,5 +69,9 @@ export class NavbarComponent {
                 localStorage.removeItem('currentUser');
                 this._sharedService.setLoginStatus(false);
         })
+    }
+
+    onChange() {
+        this._sharedService.setSearchType(this.selectedSearchType);
     }
 }

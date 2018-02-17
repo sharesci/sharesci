@@ -6,10 +6,30 @@
 
 		<div class="navbar-collapse collapse" id="searchbar">
 			<ul class="nav navbar-nav navbar-right">
+				<li>
+				<select (change)="onChange()" [(ngModel)]="selectedSearchType">
+					<option *ngFor="let i of searchTypes">{{i}}</option>
+				</select>
+				</li>			
+				<!--
+				<li class="nav-item dropdown">
+					<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						Choose Engine
+					</a>
+					<div class="dropdown-menu" aria-labelledby="navbarDropdown">
+						<a class="dropdown-item" href="#">Sharesci Search</a>
+						<div class="dropdown-divider"></div>
+						<a class="dropdown-item" [routerLink]="['/TFIDFhome']" href="#">TFIDF</a>
+						<div class="dropdown-divider"></div>
+						<a class="dropdown-item" href="#">Word 2 Vec</a>
+					</div>
+				</li>
+			-->
 				<li *ngIf='hideLoginBtn == true'><a [routerLink]="['/article/upload', user]"><span class="glyphicon glyphicon-upload"></span> Upload</a></li>
 				<li *ngIf='hideLoginBtn == false'><a [routerLink]="['/login']" href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
 				<li *ngIf='hideLoginBtn == true'><a href="#" (click)="logout()"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
 				<li *ngIf='hideLoginBtn == true'><a [routerLink]="['/profile', user]"><span>Welcome {{user}}</span></a></li>
+
 			</ul>
 
 			<form *ngIf='ishome == false' class="navbar-form">

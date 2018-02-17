@@ -9,10 +9,16 @@ export class SharedService {
     constructor() { }
 
     private isUserLoggedInSource = new Subject<boolean>();
+    private searchTypeChangedSource = new Subject<string>(); 
 
     isUserLoggedIn$ = this.isUserLoggedInSource.asObservable();
+    searchType$ = this.searchTypeChangedSource.asObservable();
 
     setLoginStatus(isUserLoggedIn: boolean) {
         this.isUserLoggedInSource.next(isUserLoggedIn);
+    }
+
+    setSearchType(searchType: string) {
+        this.searchTypeChangedSource.next(searchType);
     }
 }
