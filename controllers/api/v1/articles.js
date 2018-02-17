@@ -2,6 +2,7 @@ const
 	express = require('express'),
 	pdftotext = require('pdftotextjs'),
 	assert = require('assert'),
+	rp = require('request-promise'),
 	ObjectId = require('mongodb').ObjectId,
 	MongoClient = require('mongodb').MongoClient,
 	mongo_url = 'mongodb://localhost:27017/sharesci',

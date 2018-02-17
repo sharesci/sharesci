@@ -3,7 +3,7 @@ const
 	assert = require('assert'),
 	ObjectId = require('mongodb').ObjectId,
 	MongoClient = require('mongodb').MongoClient,
-	mongo_url = 'mongodb://localhost:27017/sharesci';
+	mongo_url = 'mongodb://localhost:27017/sharesci',
 	validator = require.main.require('./util/account_info_validation');
 
 function getWiki(req, res){

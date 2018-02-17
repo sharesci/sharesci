@@ -1,8 +1,8 @@
 const
 	express = require('express'),
 	assert = require('assert'),
-	request = require('request');
-	rp = require('request-promise');
+	request = require('request'),
+	rp = require('request-promise'),
 	http = require('http');
 
 function newDoc(req, res) {
@@ -12,11 +12,11 @@ function newDoc(req, res) {
 		result: ''
 	};
 
-	var apiUrl = 'http://...';
+	var apiUrl = 'http://127.0.0.1/api/v1/notifynewdoc';
 
 	var options = {
 		uri: apiUrl,
-		qs: {
+		body: {
 			'id': req.params.id
 		},
 		json: true
