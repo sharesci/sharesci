@@ -64,7 +64,14 @@ export class SearchResultComponent implements OnInit {
         this._searchService.search(this.search_token, this.searchType)
             .map (response => <ISearchResults>response)
             .subscribe (
-                results => { this.showResults(results); this.wikiResults(results); this.setPage(1);},
+                results => { this.showResults(results); this.setPage(1);},
+                error => console.log(error)
+            );
+            this.search_token = this._wroute.snapshot.params['term'];
+            this._searchService.search(this.search_token, this.searchType)
+            .map (response => <ISearchResults>response)
+            .subscribe (
+                wikiresults => { this.wikiResults(wikiresults);},
                 error => console.log(error)
             );
     }
