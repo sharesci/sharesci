@@ -5,6 +5,9 @@ import { ISearchResults } from '../../models/datacontracts/search-results.interf
 import { SearchService } from '../../services/search.service';
 import { PagerService } from '../../services/pager.service';
 import { ArticleService } from '../../services/article.service';
+import { SharedService } from '../../services/shared.service';
+import { IArticle } from '../../models/datacontracts/article.interface';
+import { Article } from '../../models/entities/article.entity';
 import { saveAs } from 'file-saver'
 
 @Component({
@@ -14,37 +17,64 @@ import { saveAs } from 'file-saver'
 })
 
 export class SearchResultComponent implements OnInit {
-    search_results: ISearchResults = null
-    search_token: string = ''
+    search_results: ISearchResults = null;
+    wiki_search_results: ISearchResults = null;
+    search_token = '';
     pager: any = {};
-    resultPerPage: number = 10;
+    resultPerPage = 10;
+    searchType = 'word2vec';
 
     constructor(private _pagerService: PagerService,
-        private _searchService: SearchService, private _articleService: ArticleService,
-        private _route: ActivatedRoute) {
-        _route.params.subscribe(params => {
-            this.search_token = this._route.snapshot.params['term'];
-            this._searchService.search(this.search_token)
-                .map(response => <ISearchResults>response)
-                .subscribe(
-                    results => { this.showResults(results); this.setPage(1) },
-                    error => console.log(error)
-                );
-        });
+                private _searchService: SearchService,
+                private _articleService: ArticleService,
+                private _sharedService: SharedService, 
+                private _route: ActivatedRoute,
+                private _wroute: ActivatedRoute) {
+
+        _sharedService.searchType$
+            .subscribe(searchType => {
+                this.searchType = searchType;
+            });
+
+        _route.params
+            .subscribe(params => {
+                this.search_token = this._route.snapshot.params['term'];
+                this._searchService.search(this.search_token, this.searchType)
+                    .map(response => <ISearchResults>response)
+                    .subscribe(
+                        results => { this.showResults(results); this.setPage(1) },
+                        error => console.log(error)
+                    );
+            });
+
+            _wroute.params
+            .subscribe(params => {
+                this.search_token = this._wroute.snapshot.params['term'];
+                this._searchService.search(this.search_token, this.searchType)
+                    .map(response => <ISearchResults>response)
+                    .subscribe(
+                        wikiresults => { this.wikiResults(wikiresults) },
+                        error => console.log(error)
+                    );
+            });
     }
 
     ngOnInit() {
         this.search_token = this._route.snapshot.params['term'];
-        this._searchService.search(this.search_token)
+        this._searchService.search(this.search_token, this.searchType)
             .map (response => <ISearchResults>response)
             .subscribe (
-                results => { this.showResults(results); this.setPage(1);},
+                results => { this.showResults(results); this.wikiResults(results); this.setPage(1);},
                 error => console.log(error)
             );
     }
 
     private showResults(search_results: ISearchResults) {
         this.search_results = search_results;
+    }
+
+    private wikiResults(wiki_search_results: ISearchResults) {
+        this.wiki_search_results = wiki_search_results;
     }
 
     private pageClicked(page: number) {
@@ -68,10 +98,10 @@ export class SearchResultComponent implements OnInit {
     }
 
     private search(offset: number, maxResults: number) {
-        this._searchService.search(this.search_token, offset, maxResults)
+        this._searchService.search(this.search_token, this.searchType, offset, maxResults)
             .map(response => <ISearchResults>response)
             .subscribe(
-            results => this.showResults(results),
+            results => { this.showResults(results); this.wikiResults(results); },
             error => console.log(error)
             );
     }

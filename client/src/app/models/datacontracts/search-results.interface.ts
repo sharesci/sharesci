@@ -8,6 +8,12 @@ export interface ISearchResults {
         _id: string,
         authors: [Author],
         title: string,
+        abstract: string,
         score: number
+    }]
+    wikiresults: [{
+        id: string,
+        title: string,
+        url: string
     }]
 }

@@ -1,6 +1,16 @@
 
 .search-container { 
-    margin-top: 50px; 
+    float: left;
+    margin-top: 50px;
+    margin-left: 20px;
+    width: 60%;
+}
+
+.wiki-search-container { 
+    float: right;
+    margin-top: 50px;
+    width: 35%;
+    margin-right: 50px;
 }
 
 ul.pagination {
@@ -25,7 +35,7 @@ h2.lead {
 }
 
 .search-result { 
-    margin-top: 20px; 
+    margin-top: 20px;
 }
 
 .search-result ul { 
