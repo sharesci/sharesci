@@ -30,7 +30,7 @@ export class SearchResultComponent implements OnInit {
                 private _articleService: ArticleService,
                 private _sharedService: SharedService, 
                 private _route: ActivatedRoute,
-                private _wroute: ActivatedRoute) {
+                ) {
 
         _sharedService.searchType$
             .subscribe(searchType => {
@@ -46,7 +46,7 @@ export class SearchResultComponent implements OnInit {
                         results => { this.showResults(results); this.setPage(1) },
                         error => console.log(error)
                     );
-                    this._searchService.wikiSearch(this.search_token, this.searchType)
+                this._searchService.wikiSearch(this.search_token, this.searchType)
                     .map(response => <ISearchResults>response)
                     .subscribe(
                         wikiresults => { this.showResults(wikiresults); },
@@ -107,7 +107,7 @@ export class SearchResultComponent implements OnInit {
             error => console.log(error)
             );
 
-    this._searchService.wikiSearch(this.search_token, this.searchType, offset, maxResults)
+        this._searchService.wikiSearch(this.search_token, this.searchType, offset, maxResults)
             .map(response => <IWSearchResults>response)
             .subscribe(
              results => { this.wikiResults(results); },
