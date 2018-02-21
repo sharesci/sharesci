@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { ISearchResults } from '../../models/datacontracts/search-results.interface';
+import { IWSearchResults } from '../../models/datacontracts/wiki-results.interface';
 import { SearchService } from '../../services/search.service';
 import { PagerService } from '../../services/pager.service';
 import { ArticleService } from '../../services/article.service';
@@ -18,7 +19,7 @@ import { saveAs } from 'file-saver'
 
 export class SearchResultComponent implements OnInit {
     search_results: ISearchResults = null;
-    wiki_search_results: ISearchResults = null;
+    wiki_search_results: IWSearchResults = null;
     search_token = '';
     pager: any = {};
     resultPerPage = 10;
@@ -45,15 +46,10 @@ export class SearchResultComponent implements OnInit {
                         results => { this.showResults(results); this.setPage(1) },
                         error => console.log(error)
                     );
-            });
-
-            _wroute.params
-            .subscribe(params => {
-                this.search_token = this._wroute.snapshot.params['term'];
-                this._searchService.search(this.search_token, this.searchType)
+                    this._searchService.wikiSearch(this.search_token, this.searchType)
                     .map(response => <ISearchResults>response)
                     .subscribe(
-                        wikiresults => { this.wikiResults(wikiresults) },
+                        wikiresults => { this.showResults(wikiresults); },
                         error => console.log(error)
                     );
             });
@@ -67,9 +63,8 @@ export class SearchResultComponent implements OnInit {
                 results => { this.showResults(results); this.setPage(1);},
                 error => console.log(error)
             );
-            this.search_token = this._wroute.snapshot.params['term'];
-            this._searchService.search(this.search_token, this.searchType)
-            .map (response => <ISearchResults>response)
+            this._searchService.wikiSearch(this.search_token, this.searchType)
+            .map (response => <IWSearchResults>response)
             .subscribe (
                 wikiresults => { this.wikiResults(wikiresults);},
                 error => console.log(error)
@@ -80,7 +75,7 @@ export class SearchResultComponent implements OnInit {
         this.search_results = search_results;
     }
 
-    private wikiResults(wiki_search_results: ISearchResults) {
+    private wikiResults(wiki_search_results: IWSearchResults) {
         this.wiki_search_results = wiki_search_results;
     }
 
@@ -108,9 +103,16 @@ export class SearchResultComponent implements OnInit {
         this._searchService.search(this.search_token, this.searchType, offset, maxResults)
             .map(response => <ISearchResults>response)
             .subscribe(
-            results => { this.showResults(results); this.wikiResults(results); },
+            results => { this.showResults(results); },
             error => console.log(error)
             );
+
+    this._searchService.wikiSearch(this.search_token, this.searchType, offset, maxResults)
+            .map(response => <IWSearchResults>response)
+            .subscribe(
+             results => { this.wikiResults(results); },
+             error => console.log(error)
+      );
     }
 
     private viewPdf(id: string, download: boolean, title?: string) {

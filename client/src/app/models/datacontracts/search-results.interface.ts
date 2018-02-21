@@ -11,9 +11,4 @@ export interface ISearchResults {
         abstract: string,
         score: number
     }]
-    wikiresults: [{
-        id: string,
-        title: string,
-        url: string
-    }]
 }
