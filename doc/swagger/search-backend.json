@@ -32,7 +32,7 @@
             "name": "q",
             "in": "query",
             "type": "string",
-            "required": false,
+            "required": true,
             "description": "Query with match in any field (title, author, etc) of a document"
           },
           {
@@ -61,25 +61,55 @@
           "default": {
             "description": "successful operation",
             "schema": {
-              "type": "object",
-              "properties": {
-                "errno": {
-                  "type": "number"
-                },
-                "errstr": {
-                  "type": "string"
-                },
-                "numResults": {
-                  "type": "number",
-                  "description": "The number of results found (if maxResults was specified, not all will be included in the response"
-                },
-                "results": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/SearchResult"
-                  }
-                }
-              }
+              "$ref": "#/definitions/SearchResultList"
+            }
+          }
+        }
+      }
+    },
+    "/user-recommendations": {
+      "get": {
+        "summary": "Search for articles based on a user's history",
+        "description": "",
+        "operationId": "getUserRecommendations",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "userid",
+            "in": "query",
+            "type": "string",
+            "required": true,
+            "description": "User ID of a user (the user for whom recommendations should be found)"
+          },
+          {
+            "name": "maxResults",
+            "in": "query",
+            "type": "number",
+            "required": false,
+            "description": "Limit the number of results returned"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "type": "number",
+            "required": false,
+            "description": "Get results starting at the nth result. Useful when combined with the maxResults parameter."
+          },
+          {
+            "name": "getFullDocs",
+            "in": "query",
+            "type": "boolean",
+            "required": false,
+            "description": "Same as for the /search endpoint. If true, get the full data for each document (in the \"documentJson\" field of the response). If false, return only document IDs. The server may not support fetching full documents, so even if this field is \"true\" it is the client's responsibility to check whether full document data is actually returned."
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/SearchResultList"
             }
           }
         }
@@ -98,7 +128,7 @@
             "name": "docid",
             "in": "query",
             "type": "string",
-            "required": false,
+            "required": true,
             "description": "Document ID of an existing document (the document for which related documents should be found)"
           },
           {
@@ -127,25 +157,7 @@
           "default": {
             "description": "successful operation",
             "schema": {
-              "type": "object",
-              "properties": {
-                "errno": {
-                  "type": "number"
-                },
-                "errstr": {
-                  "type": "string"
-                },
-                "numResults": {
-                  "type": "number",
-                  "description": "The number of results found (if maxResults was specified, not all will be included in the response"
-                },
-                "results": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/SearchResult"
-                  }
-                }
-              }
+              "$ref": "#/definitions/SearchResultList"
             }
           }
         }
@@ -189,6 +201,27 @@
         "score": {
           "type": "number",
           "description": "The relevance score of the result (larger values are more relevant)"
+        }
+      }
+    },
+    "SearchResultList": {
+      "type": "object",
+      "properties": {
+        "errno": {
+          "type": "number"
+        },
+        "errstr": {
+          "type": "string"
+        },
+        "numResults": {
+          "type": "number",
+          "description": "The number of results found (if maxResults was specified, not all will be included in the response. This should not be relied upon as an exact measure, as some search servers may only be able to return an approximate count for performance reasons."
+        },
+        "results": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SearchResult"
+          }
         }
       }
     }
