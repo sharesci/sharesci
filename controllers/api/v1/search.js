@@ -35,7 +35,7 @@ function index(req, res) {
 		searchParams['engine'] = 'mongo';
 	}
 	if(!searchParams.getFullDocs) {
-		searchParams['getFullDocs'] = true;
+		searchParams['getFullDocs'] = false;
 	}
 
 	var options = {
@@ -55,7 +55,7 @@ function index(req, res) {
 	.then((searchResults) => {
 		responseJSON.numResults = searchResults.numHits;
 		
-		if(searchParams.getFullDocs) {
+		if(!searchParams.getFullDocs) {
 			searchResults['options'] = options;
 			var newPromise = new Promise((resolve, reject) => {getInfo(searchResults, resolve, reject)});
 			newPromise.then((results) => {
@@ -85,7 +85,6 @@ function index(req, res) {
 			res.json(responseJSON);
 			res.end();
 		}
-		console.log('responseJSON: ', responseJSON);
 	})	
 	.catch(function(err) {
 		responseJSON.errno = 1;
@@ -102,7 +101,6 @@ function getInfo(params, resolve, reject) {
 			reject(err);
 			return;
 		}
-
 		var idObject = params.results.map(obj => { return ObjectId(obj._id) });
 		var newObj = params.results.map(obj => {
 			var nObj = {};
@@ -110,8 +108,7 @@ function getInfo(params, resolve, reject) {
 			return nObj;
 		});
 		var oneObject = Object.assign({}, ...newObj);
-
-		var cursor = db.collection('papers').find({'_id': {$in: idObject}});
+		var cursor = db.collection('papers').find({'_id': {$in: idObject}}, {'_id': 1, 'title': 1, 'authors': 1});
 		var numHitsPromise = cursor.count();
 		numHitsPromise.then((data)=>{console.log(data);});
 		cursor.sort({'score': 1});
@@ -133,7 +130,7 @@ function getInfo(params, resolve, reject) {
 				delete fObj.documentJson._id;
 				return fObj;
 			});
-			
+
 			if(err){
 				reject(err);
 
