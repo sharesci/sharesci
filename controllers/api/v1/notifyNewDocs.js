@@ -9,31 +9,29 @@ function newDoc(req, res) {
 	var responseJSON = {
 		errno: 0,
 		errstr: '',
-		result: ''
 	};
 
-	var apiUrl = 'http://127.0.0.1/api/v1/notifynewdoc';
+	var apiUrl = 'http://137.148.142.215:8000/notifynewdoc';
 
 	var options = {
 		uri: apiUrl,
 		body: {
-			'id': req.params.id
+			'_id': req.body._id
 		},
 		json: true
 	};
 
 	rp(options)
-		.then(function(results) {
-			responseJSON.result = 'Success';
-			res.json(responseJSON);
-			res.end();
-		})
-		.catch(function(err) {
-			responseJSON.errno = 1;
-			responseJSON.errstr = err;
-			res.json(responseJSON);
-			res.end();
-		});
+	.then(function(results) {
+		res.json(responseJSON);
+		res.end();
+	})
+	.catch(function(err) {
+		responseJSON.errno = 1;
+		responseJSON.errstr = err;
+		res.json(responseJSON);
+		res.end();
+	});
 }
 
 module.exports = {

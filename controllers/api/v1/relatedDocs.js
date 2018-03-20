@@ -4,6 +4,9 @@ const
 	session = require('express-session'),
 	request = require('request'),
 	rp = require('request-promise'),
+	ObjectId = require('mongodb').ObjectId,
+	MongoClient = require('mongodb').MongoClient,
+	mongo_url = 'mongodb://localhost:27017/sharesci',
 	http = require('http');
 
 function relatedDocs(req, res) {
@@ -38,7 +41,7 @@ function relatedDocs(req, res) {
 		searchParams['engine'] = 'mongo';
 	}
 	if(!searchParams.getFullDocs) {
-		searchParams['getFullDocs'] = true;
+		searchParams['getFullDocs'] = false;
 	}
 	
 	var options = {
@@ -56,28 +59,18 @@ function relatedDocs(req, res) {
 
 	rp(options)
 	.then((searchResults) => {
-		responseJSON.numResults = searchResults.numHits;
-
-		if(searchParams.getFullDocs) {
-			searchResults['options'] = options;
-			var newPromise = new Promise((resolve, reject) => {getInfo(searchResults, resolve, reject)});
-			newPromise.then((results) => {
-				responseJSON.results = results.results;
-				res.json(responseJSON);
-				res.end();
-			})
-			.catch((err) => {
-				console.error(err);
-			});
-		} else {
-			responseJSON.results = searchResults.results;
-			res.json(responseJSON);
-			res.end();
-		}
+		searchResults['options'] = options;
+		return new Promise((resolve, reject) => {getInfo(searchResults, resolve, reject)}).catch(err => {console.error(err)});
 	})
-	.catch(function(err) {
+	.then((searchResults) => {
+		responseJSON.results = searchResults.results;
+		responseJSON.numResults = searchResults.numHits;
+		res.json(responseJSON);
+		res.end();
+	})
+	.catch((err) => {
 		responseJSON.errno = 1;
-		responseJSON.errstr = err.error;
+		responseJSON.errstr = err;
 		res.json(responseJSON);
 		res.end();
 	});
@@ -90,7 +83,7 @@ function getInfo(params, resolve, reject) {
 			reject(err);
 			return;
 		}
-
+		
 		var idObject = params.results.map(obj => { return ObjectId(obj._id) });
 		var newObj = params.results.map(obj => {
 			var nObj = {};
@@ -98,65 +91,38 @@ function getInfo(params, resolve, reject) {
 			return nObj;
 		});
 		var oneObject = Object.assign({}, ...newObj);
+		
+		var cursor = db.collection('papers').find({'_id': {$in: idObject}}, {'_id': 1, 'title': 1, 'authors': 1}).map(obj => {
+			obj['score'] = oneObject[obj._id];
+			return obj;
+		});
 
-		var cursor = db.collection('papers').find({'_id': {$in: idObject}});
 		var numHitsPromise = cursor.count();
 		numHitsPromise.then((data)=>{console.log(data);});
-		cursor.sort({'score': 1});
 		cursor.skip(parseInt(params.options.qs.offset));
 		if(params.options.qs.maxResults) {
 			cursor.limit(parseInt(params.options.qs.maxResults));
 		}
+
 		Promise.all([cursor.toArray(), numHitsPromise])
-		.then((promiseVals)=>{
-			var arr = promiseVals[0];
-			var numHits = promiseVals[1];
-			var newArr = stripVersions(arr);
+		.then((results) => {
+			var arr = results[0];
+			var numHits = results[1];
 
-			var finalObj = newArr.map(obj => {
-				var fObj = {};
-				fObj['_id'] = obj._id;
-				fObj['documentJson'] = obj;
-				fObj['score'] = oneObject[obj._id];
-				delete fObj.documentJson._id;
-				return fObj;
-			});
-			
-			if(err){
+			if(err) {
 				reject(err);
-
 			} else {
-				resolve({'results': finalObj, 'numHits': numHits});
+				resolve({'results': sortByScore(arr, 'score'), 'numHits': numHits});
 			}
-			db.close();
-		})
-		.catch((err) => {
-			console.error(err);
 			db.close();
 		});
 	});
 }
 
-
-// Processes the JSON a search results set so any articles with multiple
-// versions show the most recent version
-function stripVersions(resultSet) {
-	for (let i = 0; i < resultSet.length; i++) {
-		if (!('versions' in resultSet[i])) {
-			continue;
-		}
-		// Just take the most recent version and discard everything
-		// else
-		// TODO: Currently this will return extra information like
-		// fulltext and abstract if the version JSON has it; to be
-		// correct, it should only return the same fields specified by
-		// the MongoDB query
-		recentVersion = resultSet[i].versions.slice(-1)[0];
-		recentVersion._id = resultSet[i]._id;
-		recentVersion.score = resultSet[i].score;
-		resultSet[i] = recentVersion;
-	}
-	return resultSet;
+function sortByScore(result, score) {
+    return result.sort(function(a, b) {
+        return b[score] - a[score];
+    });
 }
 
 module.exports = {
