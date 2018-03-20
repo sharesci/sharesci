@@ -4,14 +4,13 @@ const
 	assert = require('assert'),
 	ObjectId = require('mongodb').ObjectId,
 	MongoClient = require('mongodb').MongoClient,
-	mongo_url = 'mongodb://localhost:27017/sharesci',
-	validator = require.main.require('./util/account_info_validation');
+	mongo_url = 'mongodb://localhost:27017/sharesci';
 
 function getComments(req, res){
 	var responseJson = {
 		errno: 0,
 		errstr: '',
-		commentsJson: null
+		results: []
 	};
 
 	MongoClient.connect(mongo_url, function(err, db) {
@@ -22,9 +21,8 @@ function getComments(req, res){
 			return;
 		}
 		var cursor;
-
 		try {
-			cursor = db.collection('comments').find( { '_id': new ObjectId(req.params.id) } );
+			cursor = db.collection('comments').find( { 'articleId': new ObjectId(req.params.id) } );
 		} catch(err) {
 			console.error(err);
 			res.status(500).json( { errno: 1, errstr: 'Unknown error' } );
@@ -37,7 +35,7 @@ function getComments(req, res){
 				responseJson.errstr = "Something went wrong";
 			} else {
 				responseJson.errno = 0;
-				responseJson.commentsJson = commentsJson;
+				responseJson.results = sortByDate(commentsJson, 'date');
 			}
 			db.close();
 			res.json(responseJson);
@@ -50,7 +48,7 @@ function getUserComments(req, res) {
 	var responseJson = {
 		errno: 0,
 		errstr: '',
-		commentsJson: null
+		results: []
 	};
 
 	MongoClient.connect(mongo_url, function(err, db) {
@@ -60,27 +58,50 @@ function getUserComments(req, res) {
 			reject(err);
 			return;
 		}
-		var cursor;
 
+		var cursor, commentsResults, idObject;
 		try {
-			cursor = db.collection('comments').find( { 'username': req.params.username } );
+			cursor = db.collection('comments').find({ 'username': req.session.user_id });
 		} catch(err) {
 			console.error(err);
 			res.status(500).json( { errno: 1, errstr: 'Unknown error' } );
 			return;
 		}
 		cursor.toArray((err, commentsJson) => {
-			if(err){
+			if(err) {
 				res.writeHead(500);
 				responseJson.errno = 1;
-				responseJson.errstr = "Something went wrong";
 			} else {
-				responseJson.errno = 0;
-				responseJson.commentsJson = commentsJson;
+				commentsResults = commentsJson;
+				idObject = commentsResults.map(obj => { return ObjectId(obj.articleId)});
+				var cursor2;
+				try {
+					cursor2 = db.collection('papers').find({'_id': {$in: idObject}}, {'_id': 1, 'title': 1}).map(obj => {
+						var tempObj = {};
+						tempObj[obj._id] = obj.title;
+						return tempObj;
+					});
+				} catch(err) {
+					console.error(err);
+					res.status(500).json( { errno: 1, errstr: 'Unknown error' } );
+					return;
+				}
+				cursor2.toArray((err2, commentsJson2) => {
+					if(err2) {
+						res.writeHead(500);
+						responseJson.errno = 1;
+					} else {
+						var finalObject = Object.assign({}, ...commentsJson2);
+						commentsResults.forEach(function(obj) {
+							obj['articleTitle'] = finalObject[obj.articleId];
+						});
+						db.close();
+						responseJson.results = sortByDate(commentsResults, 'date');
+						res.json(responseJson);
+						res.end();
+					}
+				});
 			}
-			db.close();
-			res.json(responseJson);
-			res.end();
 		});
 	});
 }
@@ -94,7 +115,7 @@ function postComments(req, res){
 	var username = req.session.user_id;
 
 	if (!username) {
-		respond_error({errno: 9, errstr: 'Unauthorized'}, 401);
+		res.status(401).json({errno: 1, errstr: 'Unauthorized'});
 		return;
 	}
 	MongoClient.connect(mongo_url, function(err, db) {
@@ -109,30 +130,25 @@ function postComments(req, res){
 		var strDateTime = [[now.getDate(), now.getMonth() + 1, now.getFullYear()].join("/"), [now.getHours(), now.getMinutes()].join(":"), 
     		now.getHours() >= 12 ? "PM" : "AM"].join(" ");
 
-		var cursor, newComment;
+		var cursor;
 
 		try {
-			newComment = "{'_id': req.params.id}, {$addToSet: {'comments':{ _id: ObjectId(), 'username': req.session.user_id, 'date': strDateTime, 'comment': req.params.body, 'articleid': req.params.id}}}, {upsert : true}";
-			cursor = db.collection('comments').findAndModify( newComment );
-			console.log("inserted ID: ", cursor[0]._id);
+			cursor = db.collection('comments').insert({'_id': new ObjectId(), 'username': req.session.user_id, 'date': strDateTime, 'comment': req.body.comment, 'articleId': new ObjectId(req.params.id)});
+			res.json(responseJson);
 		} catch(err) {
 			console.error(err);
-			res.status(500).json( { errno: 1, errstr: 'Unknown error' } );
+			res.status(500).json({ errno: 1, errstr: 'Unknown error' });
 			return;
 		}
-		cursor.toArray((err, postUserComment) => {
-			if(err){
-				res.writeHead(500);
-				responseJson.errno = 1;
-			} else {
-				responseJson.errno = 0;
-				responseJson.commentsJson.push(postUserComment);
-			}
-			db.close();
-			res.json(responseJson);
-			res.end();
-		});
+		db.close();
+		res.end();
 	});
+}
+
+function sortByDate(result, date) {
+    return result.sort(function(a, b) {
+        return ((a[date] > b[date]) ? -1 : ((a[date] < b[date]) ? 1 : 0));
+    });
 }
 
 module.exports = {
