@@ -1,6 +1,8 @@
 #article-container {
-    margin-top: 70px;
-    margin-left: 10%; 
+    width: 60%;
+    float: left;
+    margin-top: 50px;
+    margin-left: 20px; 
 }
 
  dd, dt {
@@ -15,3 +17,14 @@
  .list-group-item {
      cursor: pointer
  }
+
+ #related-article-container { 
+    float: right;
+    margin-top: 50px;
+    width: 35%;
+    margin-right: 50px;
+}
+
+.mb20 { 
+    margin-bottom: 20px;
+}

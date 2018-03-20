@@ -29,7 +29,43 @@
                     <span><i class="fa fa-download" aria-hidden="true"></i></span>
                     <span><strong>Download</strong></span>
                 </a>
+                <a class="list-group-item text-center" (click)="viewPdf(true)">
+                    <span><i class="fa fa-star" aria-hidden="true"></i></span>
+                    <span><strong>Favorite</strong></span>
+                </a>
             </ul>
         </div>
     </div>
+
+    <div class="col-xs-10">
+        <div class="form-group">
+           <h2>Leave a Reply</h2>
+           <form ng-controller="Controller">
+               <textarea class="form-control" rows="5" ng-model="cmtName" placeholder="Your Comment"></textarea>
+               <br/>
+               <button class="btn btn-success btn-md pull-right" ng-click='btn_post();'>Comment</button>
+               <br/>
+               <hr/>
+               <h3>Comments</h3>
+               <ul class="list-group">
+                   <li class="list-group-item" ng-repeat="cmt in comments"> {{ cmt }}
+                       <a href="" ng-click="post_cmt($article)"></a>
+                   </li>
+               </ul>
+           </form>
+        </div>
+    </div>
+</div>
+<div id="related-article-container" class=".container-fluid">
+	<div class="mb20">
+		<h3>Related Articles</h3>
+    </div>
+	<section class="col-xs-12 col-sm-6 col-md-12" *ngFor="let result of (search_results?.results ? search_results?.results.concat([]).slice(0, 5): [])">
+            <article class="search-result row">
+                <div class="col-xs-12 col-sm-12 col-md-8">
+                    <h3><a [routerLink]="['/article', result._id]" title="">{{result.title}}</a></h3>
+                    <!--<h3><a [routerLink]="['/article', result.article?.abstract]" title"">{{result.article?.abstract}}</a></h3>-->
+                </div>
+            </article>
+    </section>
 </div>
