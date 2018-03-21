@@ -149,15 +149,19 @@ getLatestFetchPromise.then((latestFetch) => {
 	});
 
 	final_promise.then(() => {
-		var today = (new Date()).toISOString().split('T')[0]; // Get just the YYYY-MM-DD representation
-		MongoClient.connect(mongo_url, function(err, db) {
-			assert.equal(null, err);
-			console.log("We're finished, updating retrieval date to "+today);
-			special_objects=db.collection('special_objects');
-			special_objects.update({'key':'last_harvester_run_date'}, {'$set': {'value': today}}, {'upsert': true});
-			db.close();
+		// Tell the search server we got new docs
+		console.log('Notifying search server to reload...');
+		request.post('http://localhost:8000/notifynewdoc', (err, res, body) => {
+			var today = (new Date()).toISOString().split('T')[0]; // Get just the YYYY-MM-DD representation
+			MongoClient.connect(mongo_url, function(err, db) {
+				assert.equal(null, err);
+				console.log("We're finished, updating retrieval date to "+today);
+				special_objects=db.collection('special_objects');
+				special_objects.update({'key':'last_harvester_run_date'}, {'$set': {'value': today}}, {'upsert': true});
+				db.close();
 
-			console.log('All done.');
+				console.log('All done.');
+			});
 		});
 	});
 });
