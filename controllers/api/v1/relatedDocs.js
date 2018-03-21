@@ -9,25 +9,30 @@ const
 	mongo_url = 'mongodb://localhost:27017/sharesci',
 	http = require('http');
 
-function index(req, res) {
+function relatedDocs(req, res) {
 	var responseJSON = {
 		errno: 0,
 		errstr: '',
 		results: []
 	};
+
 	var searchParams = JSON.parse(JSON.stringify(req.query));
 
+	if(!searchParams['docid']) {
+		responseJSON.errno = 5;
+		responseJSON.errstr = 'Valid docid required';
+		res.status(422).json(responseJSON);
+		res.end();
+		return;
+	}
 	if(!searchParams.offset) {
 		searchParams.offset = 0;
-	}
-	if(!searchParams.any) {
-		searchParams['any'] = 'estimation';
 	}
 	if(searchParams.maxResults) {
 		searchParams.maxResults = parseInt(searchParams.maxResults);
 	}
 	if(!searchParams.uri) {
-		searchParams['uri'] = 'http://137.148.142.215:8000/search';
+		searchParams['uri'] = 'http://137.148.142.215:8000/related-docs';
 	}
 	if(!searchParams.collection) {
 		searchParams['collection'] = 'papers';
@@ -38,12 +43,12 @@ function index(req, res) {
 	if(!searchParams.getFullDocs) {
 		searchParams['getFullDocs'] = false;
 	}
-
+	
 	var options = {
 		uri: searchParams.uri,
 		qs: {
 			'offset': searchParams.offset,
-			'q': searchParams.any,
+			'docid': searchParams.docid,
 			'maxResults': searchParams.maxResults,
 			'collection': searchParams.collection,
 			'engine': searchParams.engine,
@@ -54,19 +59,6 @@ function index(req, res) {
 
 	rp(options)
 	.then((searchResults) => {
-		if(req.session.user_id) {
-			var userSearchOptions = {
-				method: 'POST',
-				uri: 'http://127.0.0.1/api/v1/userHistory',
-				body: {
-					'type': 'terms',
-					'value': searchParams.any,
-					'userid': req.session.user_id
-				},
-				json: true
-			};
-			rp(userSearchOptions).catch(function(err) { console.error('userHistory term post request unsuccessful')});
-		}
 		searchResults['options'] = options;
 		return new Promise((resolve, reject) => {getInfo(searchResults, resolve, reject)}).catch(err => {console.error(err)});
 	})
@@ -134,5 +126,6 @@ function sortByScore(result, score) {
 }
 
 module.exports = {
-	index: index
+	relatedDocs: relatedDocs
 };
+
