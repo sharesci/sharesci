@@ -8,7 +8,6 @@
 		<article class="search-result row">
 			<div class="col-xs-12 col-sm-12 col-md-8">
 				<h3><a [routerLink]="['/article', result._id]" title="">{{result.title}}</a></h3>
-				<!--<h3><a [routerLink]="['/article', result.article?.abstract]" title"">{{result.article?.abstract}}</a></h3>-->
 			</div>
 
 			<div class="col-xs-12 col-sm-12 col-md-4 excerpet">
@@ -44,14 +43,13 @@
 
 <div class="container wiki-search-container">
 	<div class="mb20">
-		<h1>Wikipedia Results</h1>
+		<h3>Wikipedia Results</h3>
 	</div>
 
 	<section class="col-xs-12 col-sm-6 col-md-12" *ngFor="let result of (wiki_search_results?.results ? wiki_search_results?.results.concat([]).slice(0, 5): [])">
 		<article class="search-result row">
 			<div class="col-xs-12 col-sm-12 col-md-8">
-				<h3><a [routerLink]="['/article', result._id]" title="">{{result.title}}</a></h3>
-				<!--<h3><a ng-href="{{result.url}}">{{result.title}}</a></h3>-->
+				<h2><a href="{{result.url}}">{{result.title}}</a></h2>
 				<ul class="meta-search list-inline">
 				</ul>
 			</div>

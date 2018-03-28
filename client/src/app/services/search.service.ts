@@ -10,13 +10,13 @@ export class SearchService {
     constructor(private _http: Http, private _config: AppConfig) { }
 
     private _searchUrl = this._config.apiUrl + '/search?';
-    private _wikiSearchUrl = this._config.apiUrl + '/wikiSearch?';
+    private _wikiSearchUrl = this._config.apiUrl + '/search?';
 
     search(searchToken: string, searchType: string, offset = 0, maxResult = 10 ): Observable<any> {
         let queryString = new URLSearchParams();
         queryString.append('any', searchToken);
         queryString.append('offset', offset.toString());
-        queryString.append('maxResults', maxResult.toString());    
+        queryString.append('maxResults', maxResult.toString());
         //queryString.append('searchType', searchType);    
 
         console.log("Searching with type " + searchType);
@@ -29,8 +29,7 @@ export class SearchService {
         let queryString = new URLSearchParams();
         queryString.append('any', searchToken);
         queryString.append('offset', offset.toString());
-        queryString.append('maxResults', maxResult.toString());    
-        //queryString.append('searchType', searchType);
+        queryString.append('maxResults', maxResult.toString());
 
         return this._http.get(this._wikiSearchUrl + queryString.toString())
             .map((response: Response) => response.json());

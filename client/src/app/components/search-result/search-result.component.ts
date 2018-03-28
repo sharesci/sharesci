@@ -110,7 +110,7 @@ export class SearchResultComponent implements OnInit {
         this._searchService.wikiSearch(this.search_token, this.searchType, offset, maxResults)
             .map(response => <IWSearchResults>response)
             .subscribe(
-             results => { this.wikiResults(results); },
+             wikiresults => { this.wikiResults(wikiresults); },
              error => console.log(error)
       );
     }

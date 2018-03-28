@@ -21,7 +21,7 @@ export class NavbarComponent {
     searchTypes: string[] = ['word2vec', 'paragraphVector', 'tfidf'];
     selectedSearchType = this.searchTypes[0];
 
-    constructor(private _authenticationService : AuthenticationService,
+    constructor(private _authenticationService: AuthenticationService,
                 private _router: Router,
                 private _searchService: SearchService, 
                 private _sharedService: SharedService) {
