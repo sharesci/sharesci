@@ -21,3 +21,8 @@ input {
     position: relative;
     float: right;
 }
+
+.vertical-menu a {
+    display: block;
+    text-decoration: none;
+}
