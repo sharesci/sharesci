@@ -69,6 +69,7 @@ export class ArticleComponent implements OnInit {
     }
 
     private showRelatedDocs(related_docs: ISearchResults) {
+	related_docs.results.shift();
         this.related_docs = related_docs;
     }
 

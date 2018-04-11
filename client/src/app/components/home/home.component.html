@@ -14,6 +14,17 @@
 		            </button>
                 </div>
             </div>
+			<div class="row" *ngIf="isUserLoggedIn">
+				<div class="col-lg-4 col-lg-offset-5">
+					<h5>Recommended Articles</h5>
+					<div class="vertical-menu">
+						<div *ngFor="let result of userRec?.results" >
+							<a [routerLink]="['/article', result._id]"> {{result.title}}</a>
+						</div>
+					</div>
+				</div>
+			</div>
+
         </div>
     </form>
 </div>

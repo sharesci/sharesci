@@ -6,6 +6,7 @@ import { SharedService } from './services/shared.service'
 import { PagerService } from './services/pager.service'
 import { ArticleService } from './services/article.service'
 import { RelatedDocService } from './services/related-doc.service'
+import { UserRecService } from './services/user-rec.service'
 import { AppConfig } from './app.config'
 
 
@@ -15,7 +16,7 @@ import { AppConfig } from './app.config'
                 <ss-navbar></ss-navbar>
                 <router-outlet></router-outlet>
               </div>`,
-  providers: [AuthenticationService, AccountService, AppConfig, SearchService, SharedService, PagerService, ArticleService, RelatedDocService]
+  providers: [AuthenticationService, AccountService, AppConfig, SearchService, SharedService, PagerService, ArticleService, RelatedDocService, UserRecService]
 })
 
 export class AppComponent {

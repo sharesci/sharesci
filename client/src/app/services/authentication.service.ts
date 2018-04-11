@@ -40,6 +40,11 @@ export class AuthenticationService {
 
     logout(): Observable<Response> {
         let observ = this._http.post(this._logoutUrl, {});
+		this.clearCache();
         return observ;
     }
+
+	private clearCache() {
+        localStorage.removeItem('userRec');
+	}
 }
