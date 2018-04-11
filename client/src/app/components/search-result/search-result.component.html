@@ -46,10 +46,16 @@
 		<h3>Wikipedia Results</h3>
 	</div>
 
+	<!--<section class="col-xs-12 col-sm-6 col-md-12">-->
 	<section class="col-xs-12 col-sm-6 col-md-12" *ngFor="let result of (wiki_search_results?.results ? wiki_search_results?.results.concat([]).slice(0, 5): [])">
 		<article class="search-result row">
 			<div class="col-xs-12 col-sm-12 col-md-8">
-				<h2><a href="{{result.url}}">{{result.title}}</a></h2>
+					<!--<h3><a href="https://en.wikipedia.org/wiki/Nervous_system">Nervous System</a></h3>
+					<h3><a href="https://en.wikipedia.org/wiki/Neural_oscillation">Neural Oscillation</a></h3>
+					<h3><a href="https://en.wikipedia.org/wiki/Neural_coding">Neural Coding</a></h3>
+					<h3><a href="https://en.wikipedia.org/wiki/Neural_crest">Neural Crest</a></h3>
+					<h3><a href="https://en.wikipedia.org/wiki/Neuralgia">Neuralgia</a></h3>-->
+				<h3><a href="{{result.url}}">{{result.title}}</a></h3>
 				<ul class="meta-search list-inline">
 				</ul>
 			</div>

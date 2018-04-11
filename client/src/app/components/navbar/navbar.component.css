@@ -1,3 +1,17 @@
-li.a {
+li.b {
     padding-top: 15px;
+    padding-left: 5px;
+    color: black;
+}
+
+.nav.navbar-nav.navbar-right li a {
+    color: white;
+}
+
+ul.nav a:hover { 
+    color: rgb(66, 139, 202) !important; 
+}
+
+.navbar-dark .navbar-brand {
+    color: white;
 }
