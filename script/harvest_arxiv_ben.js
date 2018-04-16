@@ -21,18 +21,18 @@ oth={};
 oth['arxiv_id']=data['id'];
 			delete data['id'];
 			data['authors'] = data['authors']['author'];
-if(data['authors'].keyname.length>1) {
+if(data['authors'].keyname) {
 data['authors'].lastname=data['authors'].keyname;
-data.authors.firstname=data.authors.forenames;
-delete data.authors.forenames;
-delete data.authors.keyname;
+data['authors'].firstname=data['authors'].forenames;
+delete data['authors'].forenames;
+delete data['authors'].keyname;
 }
 else {
-for(var count=0; count<data.authors.length; ++count) {
-data.authors[count].firstname=data.authors[count].forenames;
-data.authors[count].lastname=data.authors[count].keyname;
-delete data.authors[count].forenames;
-delete data.authors[count].keyname;
+for(var count=0; count<data['authors'].length; ++count) {
+data['authors'][count].firstname=data['authors'][count].forenames;
+data['authors'][count].lastname=data['authors'][count].keyname;
+delete data['authors'][count].forenames;
+delete data['authors'][count].keyname;
 }
 }
 oth['comments']=data.comments;
@@ -44,6 +44,7 @@ delete data.doi;
 
 			data['references'] = [];
 data['other']=oth;
+//console.log(data);
 			alldata.push(data);
 		});
 	});
@@ -66,16 +67,30 @@ function mongoInsertPapers(paperdata, callback) {
 		assert.equal(null, err);
 		console.log("Connected successfully to server for inserting papers");
 		var collection = db.collection('papers');
-		collection.insertMany(paperdata, (err, result) => {
-			assert.equal(err, null);
-			console.log("Inserted " + result.result.n + " papers");
+var papersInserted=0, papersUpdated=0, ids=[];
+for(var count=0; count<paperdata.length; count++)
+{
+ids.push(paperdata[count].other.arxiv_id);
+var searchFor={'other.arxiv_id':paperdata[count].other.arxiv_id};
+var exists=collection.find(searchFor).limit(1).count();
+if(exists) {
+console.log("updated "+paperdata[count].title);
+collection.update(searchFor,paperdata[count]);
+papersUpdated++;
+}
+else {
+collection.insert(paperdata[count]);
+console.log("inserted "+paperdata[count].title);
+papersInserted++;
+}
+}
+			console.log("Inserted " + papersInserted + " papers, updated "+papersUpdated+" papers");
+callback(ids);
 			db.close();
-			callback(result);
 		});
-	});
 }
 
-function harvestOAI(url, resume_url, last_promise) {
+function harvestOAI(url, resume_url, last_promise, completion_callback) {
 	var reqpromise = new Promise((resolve, reject) => {
 		request(url, (err,res,xml)=>{resolve([err, res, xml]);});
 	});
@@ -97,17 +112,21 @@ function harvestOAI(url, resume_url, last_promise) {
 		var alldata = oaiXmlToJson(xmld);
 		var mongoPromise = new Promise((resolve, reject) => {
 			last_promise.then(() => {
-if(alldata.length>0) {
+				if(alldata.length>0) {
 
-				mongoInsertPapers(alldata, resolve);
-}
-else {
-console.log("nothing to insert.");
-}
+					mongoInsertPapers(alldata, resolve);
+				}
+				else {
+					console.log("nothing to insert.");
+				}
 			});
 		});
 		if (resumptionToken && 0 < resumptionToken.length) {
-			setTimeout(()=>{harvestOAI(resume_url + resumptionToken, resume_url, mongoPromise);}, 30000);
+			setTimeout(()=>{harvestOAI(resume_url + resumptionToken, resume_url, mongoPromise, completion_callback);}, 19000);
+		} else if (completion_callback !== undefined && completion_callback !== null) {
+			mongoPromise.then(() => {
+				completion_callback();
+			});
 		}
 	});
 }
@@ -144,25 +163,24 @@ getLatestFetchPromise.then((latestFetch) => {
 	var first_url = 'http://export.arxiv.org/oai2?verb=ListRecords&metadataPrefix=arXiv&from='+latestFetch;
 	var resume_url = 'http://export.arxiv.org/oai2?verb=ListRecords&resumptionToken=';
 
-	(new Promise((resolve,reject)=>{resolve(0);})).then((val)=>{harvestOAI(first_url, resume_url, Promise.resolve(val));});
+	final_promise = new Promise((resolve, reject) => {
+		harvestOAI(first_url, resume_url, Promise.resolve(0), resolve);
+	});
 
-	var today=new Date();
-	var dd=today.getDate();
-	var mm = today.getMonth()+1; //January is 0!
+	final_promise.then(() => {
+		// Tell the search server we got new docs
+		console.log('Notifying search server to reload...');
+		request.post('http://localhost:8000/notifynewdoc', (err, res, body) => {
+			var today = (new Date()).toISOString().split('T')[0]; // Get just the YYYY-MM-DD representation
+			MongoClient.connect(mongo_url, function(err, db) {
+				assert.equal(null, err);
+				console.log("We're finished, updating retrieval date to "+today);
+				special_objects=db.collection('special_objects');
+				special_objects.update({'key':'last_harvester_run_date'}, {'$set': {'value': today}}, {'upsert': true});
+				db.close();
 
-	var yyyy = today.getFullYear();
-	if(dd<10){
-	    dd='0'+dd;
-	} 
-	if(mm<10){
-	    mm='0'+mm;
-	} 
-	var today = yyyy+'-'+mm+'-'+dd;
-	MongoClient.connect(mongo_url, function(err, db) {
-		assert.equal(null, err);
-		console.log("We're finished, updating retrieval date to "+today);
-		special_objects=db.collection('special_objects');
-		special_objects.update({'key':'last_harvester_run_date'}, {'$set': {'value': today}}, {'upsert': true});
-		db.close();
+				console.log('All done.');
+			});
+		});
 	});
 });
