@@ -235,7 +235,7 @@ function postArticle(req, res) {
 			// Notify the server of new document upload for reindexing purposes
 			var newDocOptions = {
 				method: 'POST',
-				uri: 'https://127.0.0.1/api/v1/notifyNewDocs',
+				uri: 'http://137.148.142.215:8000/notifynewdoc',
 				body: {
 					_id: docJson._id
 				},
