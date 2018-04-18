@@ -16,7 +16,6 @@ function index(req, res) {
 		results: []
 	};
 	var searchParams = JSON.parse(JSON.stringify(req.query));
-
 	if(!searchParams.offset) {
 		searchParams.offset = 0;
 	}
@@ -54,6 +53,7 @@ function index(req, res) {
 
 	rp(options)
 	.then((searchResults) => {
+		responseJSON.numResults = searchResults.numHits;
 		if(req.session.user_id) {
 			var userSearchOptions = {
 				method: 'POST',
@@ -71,8 +71,7 @@ function index(req, res) {
 		return new Promise((resolve, reject) => {getInfo(searchResults, resolve, reject)}).catch(err => {console.error(err)});
 	})
 	.then((searchResults) => {
-		responseJSON.results = searchResults.results;
-		responseJSON.numResults = searchResults.numHits;
+		responseJSON.results = searchResults;
 		res.json(responseJSON);
 		res.end();
 	})
@@ -100,27 +99,17 @@ function getInfo(params, resolve, reject) {
 		});
 		var oneObject = Object.assign({}, ...newObj);
 		
-		var cursor = db.collection('papers').find({'_id': {$in: idObject}}, {'_id': 1, 'title': 1, 'authors': 1}).map(obj => {
+		var cursor = db.collection('papers').find({'_id': {$in: idObject}}, {'_id': 1, 'authors': 1, 'title': 1, 'abstract': 1}).map(obj => {
 			obj['score'] = oneObject[obj._id];
+			obj.abstract = obj.abstract.slice(0, 218) + '...';
 			return obj;
 		});
 
-		var numHitsPromise = cursor.count();
-		numHitsPromise.then((data)=>{console.log(data);});
-		cursor.skip(parseInt(params.options.qs.offset));
-		if(params.options.qs.maxResults) {
-			cursor.limit(parseInt(params.options.qs.maxResults));
-		}
-
-		Promise.all([cursor.toArray(), numHitsPromise])
-		.then((results) => {
-			var arr = results[0];
-			var numHits = results[1];
-
+		cursor.toArray((err, results) => {
 			if(err) {
 				reject(err);
 			} else {
-				resolve({'results': sortByScore(arr, 'score'), 'numHits': numHits});
+				resolve(sortByScore(results));
 			}
 			db.close();
 		});
@@ -128,9 +117,9 @@ function getInfo(params, resolve, reject) {
 }
 
 function sortByScore(result, score) {
-    return result.sort(function(a, b) {
-        return b[score] - a[score];
-    });
+	return result.sort(function(a, b) {
+  		return b.score == a.score ? 0 : +(b.score > a.score) || -1;
+  	});
 }
 
 module.exports = {

@@ -15,7 +15,7 @@ function searchPapers(req, res){
 			res(err);
 			return;
 		}
-		var cursor = db.collection(req.query.collection).find({'$and':[{'$text': {'$search': req.query.any}}]}, {'_id': 1, 'title': 1, 'authors': 1, 'updated-date': 1, 'versions': 1, score: {'$meta': 'textScore'}});
+		var cursor = db.collection(req.query.collection).find({'$and':[{'$text': {'$search': req.query.q}}]}, {'_id': 1, score: {'$meta': 'textScore'}});
 		var numHitsPromise = cursor.count();
 		numHitsPromise.then((data)=>{console.log(data);});
 		cursor.sort({'score': {'$meta': 'textScore'}});

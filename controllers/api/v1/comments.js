@@ -22,7 +22,7 @@ function getComments(req, res){
 		}
 		var cursor;
 		try {
-			cursor = db.collection('comments').find( { 'articleId': new ObjectId(req.params.id) } );
+			cursor = db.collection('comments').find( { 'articleId': new ObjectId(req.params.id) });
 		} catch(err) {
 			console.error(err);
 			res.status(500).json( { errno: 1, errstr: 'Unknown error' } );
@@ -30,15 +30,15 @@ function getComments(req, res){
 		}
 		cursor.toArray((err, commentsJson) => {
 			if(err){
-				res.writeHead(500);
 				responseJson.errno = 1;
 				responseJson.errstr = "Something went wrong";
+				res.writeHead(500);
 			} else {
 				responseJson.errno = 0;
-				responseJson.results = sortByDate(commentsJson, 'date');
+				responseJson.results = sortByDate(commentsJson);
+				res.json(responseJson);
 			}
 			db.close();
-			res.json(responseJson);
 			res.end();
 		});
 	});
@@ -96,7 +96,7 @@ function getUserComments(req, res) {
 							obj['articleTitle'] = finalObject[obj.articleId];
 						});
 						db.close();
-						responseJson.results = sortByDate(commentsResults, 'date');
+						responseJson.results = sortByDate(commentsResults);
 						res.json(responseJson);
 						res.end();
 					}
@@ -106,15 +106,13 @@ function getUserComments(req, res) {
 	});
 }
 
-function postComments(req, res){
+function postComment(req, res){
 	var responseJson = {
 		errno: 0,
 		errstr: ''
 	};
 
-	var username = req.session.user_id;
-
-	if (!username) {
+	if (!req.body.username) {
 		res.status(401).json({errno: 1, errstr: 'Unauthorized'});
 		return;
 	}
@@ -126,14 +124,15 @@ function postComments(req, res){
 			return;
 		}
 
-		var now = new Date();
-		var strDateTime = [[now.getDate(), now.getMonth() + 1, now.getFullYear()].join("/"), [now.getHours(), now.getMinutes()].join(":"), 
-    		now.getHours() >= 12 ? "PM" : "AM"].join(" ");
+		var date = new Date();
+        var options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false };
+        var thisDate = new Intl.DateTimeFormat('en-US', options).format(date).replace(',','');
 
 		var cursor;
 
 		try {
-			cursor = db.collection('comments').insert({'_id': new ObjectId(), 'username': req.session.user_id, 'date': strDateTime, 'comment': req.body.comment, 'articleId': new ObjectId(req.params.id)});
+			cursor = db.collection('comments').insert({'_id': new ObjectId(), 'username': req.body.username, 'date': thisDate, 'comment': req.body.comment, 'articleId': new ObjectId(req.body.articleId)});
+			responseJson.results = {'username': req.body.username, 'date': thisDate, 'comment': req.body.comment};
 			res.json(responseJson);
 		} catch(err) {
 			console.error(err);
@@ -145,14 +144,22 @@ function postComments(req, res){
 	});
 }
 
-function sortByDate(result, date) {
+
+function sortByDate(result) {
     return result.sort(function(a, b) {
-        return ((a[date] > b[date]) ? -1 : ((a[date] < b[date]) ? 1 : 0));
+        return ((a.date > b.date) ? -1 : ((a.date < b.date) ? 1 : 0));
     });
 }
 
+/*
+function sortByDate(result) {
+	return result.sort(function(a, b) {
+  		return b.date == a.date ? 0 : +(b.date > a.date) || -1;
+  	});
+}
+*/
 module.exports = {
 	getComments: getComments,
 	getUserComments: getUserComments,
-	postComments: postComments
+	postComment: postComment
 };

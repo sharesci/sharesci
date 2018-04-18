@@ -1,68 +1,120 @@
 const
 	express = require('express'),
 	assert = require('assert'),
-	http = require('http'),
+	session = require('express-session'),
+	request = require('request'),
+	rp = require('request-promise'),
 	ObjectId = require('mongodb').ObjectId,
 	MongoClient = require('mongodb').MongoClient,
-	mongo_url = 'mongodb://localhost:27017/sharesci';
+	mongo_url = 'mongodb://localhost:27017/sharesci',
+	http = require('http');
 
-function relatedDocuments(req, res){
+function relatedDocs(req, res) {
+	var responseJSON = {
+		errno: 0,
+		errstr: '',
+		results: []
+	};
+	var searchParams = JSON.parse(JSON.stringify(req.query));
+
+	if(!searchParams['docid']) {
+		responseJSON.errno = 5;
+		responseJSON.errstr = 'Valid docid required';
+		res.status(422).json(responseJSON);
+		res.end();
+		return;
+	}
+	if(!searchParams.offset) {
+		searchParams.offset = 0;
+	}
+	if(searchParams.maxResults) {
+		searchParams.maxResults = parseInt(searchParams.maxResults);
+	}
+	if(!searchParams.uri) {
+		searchParams['uri'] = 'http://137.148.142.215:8000/related-docs';
+	}
+	if(!searchParams.collection) {
+		searchParams['collection'] = 'papers';
+	}
+	if(!searchParams.engine) {
+		searchParams['engine'] = 'mongo';
+	}
+	if(!searchParams.getFullDocs) {
+		searchParams['getFullDocs'] = false;
+	}
 	
-	MongoClient.connect(mongo_url, function(err, db) {
+	var options = {
+		uri: searchParams.uri,
+		qs: {
+			'offset': searchParams.offset,
+			'docid': searchParams.docid,
+			'maxResults': searchParams.maxResults,
+			'collection': searchParams.collection,
+			'engine': searchParams.engine,
+			'getFullDocs': searchParams.getFullDocs
+		},
+		json: true
+	};
 
-		if (err !== null) {
-			console.error("Error opening db");
-			res(err);
-			return;
-		}
-		var cursor = db.collection(req.query.collection).find({'$and':[{'$text': {'$search': req.query.docid}}]}, {'_id': 1, 'title': 1, 'authors': 1, 'updated-date': 1, 'versions': 1, 'documentJson': 1, score: {'$meta': 'textScore'}});
-		var numHitsPromise = cursor.count();
-		numHitsPromise.then((data)=>{console.log(data);});
-		cursor.sort({'score': {'$meta': 'textScore'}});
-		cursor.skip(parseInt(req.query.offset));
-		if(req.query.maxResults) {
-			cursor.limit(parseInt(req.query.maxResults));
-		}
-		Promise.all([cursor.toArray(), numHitsPromise])
-		.then((promiseVals)=>{
-			var arr = promiseVals[0];
-			var numHits = promiseVals[1];
-			if(err){
-				res.writeHead(500);
-				res(err);
-
-			} else {
-				res.json({'results': stripVersions(arr), 'numHits': numHits});
-			}
-			db.close();
-			
-			res.end();
-		})
-		.catch((err)=>{console.error(err);db.close();});
+	rp(options)
+	.then((searchResults) => {
+		searchResults.numResults = searchResults.numHits;
+		searchResults['options'] = options;
+		return new Promise((resolve, reject) => {getInfo(searchResults, resolve, reject)}).catch(err => {console.error(err)});
+	})
+	.then((searchResults) => {
+		responseJSON.results = searchResults;
+		res.json(responseJSON);
+		res.end();
+	})
+	.catch((err) => {
+		responseJSON.errno = 1;
+		responseJSON.errstr = err;
+		res.json(responseJSON);
+		res.end();
 	});
 }
 
-// Processes the JSON a search results set so any articles with multiple
-// versions show the most recent version
-function stripVersions(resultSet) {
-	for (let i = 0; i < resultSet.length; i++) {
-		if (!('versions' in resultSet[i])) {
-			continue;
+function getInfo(params, resolve, reject) {
+	MongoClient.connect(mongo_url, function(err, db) {
+		if(err !== null) {
+			console.error("Error opening database");
+			reject(err);
+			return;
 		}
-		// Just take the most recent version and discard everything
-		// else
-		// TODO: Currently this will return extra information like
-		// fulltext and abstract if the version JSON has it; to be
-		// correct, it should only return the same fields specified by
-		// the MongoDB query
-		recentVersion = resultSet[i].versions.slice(-1)[0];
-		recentVersion._id = resultSet[i]._id;
-		recentVersion.score = resultSet[i].score;
-		resultSet[i] = recentVersion;
-	}
-	return resultSet;
+		
+		var idObject = params.results.map(obj => { return ObjectId(obj._id) });
+		var newObj = params.results.map(obj => {
+			var nObj = {};
+			nObj[obj._id] = obj.score;
+			return nObj;
+		});
+		var oneObject = Object.assign({}, ...newObj);
+		
+		var cursor = db.collection('papers').find({'_id': {$in: idObject}}, {'_id': 1, 'authors': 1, 'title': 1, 'abstract': 1}).map(obj => {
+			obj['score'] = oneObject[obj._id];
+			obj.abstract = obj.abstract.slice(0, 218) + '...';
+			return obj;
+		});
+
+		cursor.toArray((err, results) => {
+			if(err) {
+				reject(err);
+			} else {
+				resolve(sortByScore(results));
+			}
+			db.close();
+		});
+	});
+}
+
+function sortByScore(result, score) {
+	return result.sort(function(a, b) {
+  		return b.score == a.score ? 0 : +(b.score > a.score) || -1;
+  	});
 }
 
 module.exports = {
-	relatedDocuments: relatedDocuments
+	relatedDocs: relatedDocs
 };
+
