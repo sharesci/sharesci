@@ -7,7 +7,7 @@ import 'rxjs/add/operator/map';
 @Injectable()
 export class RelatedDocService {
 
-    private _searchUrl = this._config.apiUrl + '/relatedDocs?';
+    private _relatedDocsUrl = this._config.apiUrl + '/related-docs?';
 
     constructor(private _http: Http, private _config: AppConfig) { }
 
@@ -16,9 +16,9 @@ export class RelatedDocService {
         queryString.append('docid', docId);
         queryString.append('offset', offset.toString());
         queryString.append('maxResults', maxResult.toString());
-        queryString.append('engine', engine);
+        //queryString.append('engine', engine);
 
-        return this._http.get(this._searchUrl + queryString.toString())
+        return this._http.get(this._relatedDocsUrl + queryString.toString())
             .map((response: Response) => response.json());
     }
 

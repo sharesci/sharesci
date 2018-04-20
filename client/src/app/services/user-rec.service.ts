@@ -9,8 +9,8 @@ export class UserRecService {
     
     constructor(private _http: Http, private _config: AppConfig) { }
 
-    private _userRecUrl = this._config.apiUrl + '/userRecommendations?';
-    //private _userRecUrl = 'http://137.148.142.215/api/v1/userRecommendations?';
+    private _userRecUrl = this._config.apiUrl + '/user-recommendations?';
+    //private _userRecUrl = 'http://137.148.142.215/api/v1/user-recommendations?';
 
     getUserRec(userId: string, engine: string, offset = 0, maxResult = 5): Observable<any> {
         let queryString = new URLSearchParams();
