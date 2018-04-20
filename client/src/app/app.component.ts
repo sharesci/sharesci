@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { AuthenticationService } from './services/authentication.service'
 import { AccountService } from './services/account.service'
-import { ProfileService } from './services/profile.service'
 import { SearchService } from './services/search.service'
 import { SharedService } from './services/shared.service'
 import { PagerService } from './services/pager.service'
@@ -18,7 +17,7 @@ import { AppConfig } from './app.config'
                 <ss-navbar></ss-navbar>
                 <router-outlet></router-outlet>
               </div>`,
-  providers: [AuthenticationService, AccountService, ProfileService, AppConfig, SearchService, SharedService, PagerService, ArticleService, RelatedDocService, UserRecService, CommentsService]
+  providers: [AuthenticationService, AccountService, AppConfig, SearchService, SharedService, PagerService, ArticleService, RelatedDocService, UserRecService, CommentsService]
 })
 
 export class AppComponent {
