@@ -11,7 +11,7 @@ export class RelatedDocService {
 
     constructor(private _http: Http, private _config: AppConfig) { }
 
-    getRelatedDocs(docId: string, offset = 0, maxResult = 6, engine = 'mongo' ): Observable<any> {
+    getRelatedDocs(docId: string, offset = 0, maxResult = 10, engine = 'mongo' ): Observable<any> {
         let queryString = new URLSearchParams();
         queryString.append('docid', docId);
         queryString.append('offset', offset.toString());

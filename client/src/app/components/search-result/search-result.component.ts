@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { ISearchResults } from '../../models/datacontracts/search-results.interface';
 import { IWSearchResults } from '../../models/datacontracts/wiki-results.interface';
-import { IRelatedDocs } from '../../models/datacontracts/related-docs.interface';
 import { SearchService } from '../../services/search.service';
 import { RelatedDocService } from '../../services/related-doc.service';
 import { PagerService } from '../../services/pager.service';
@@ -22,7 +21,6 @@ import { saveAs } from 'file-saver'
 export class SearchResultComponent implements OnInit {
     search_results: ISearchResults = null;
     wiki_search_results: IWSearchResults = null;
-    related_docs_results: IRelatedDocs = null;
     search_token = '';
     docid = '';
     pager: any = {};
@@ -53,9 +51,9 @@ export class SearchResultComponent implements OnInit {
                         error => console.log(error)
                     );
                 this._searchService.wikiSearch(this.search_token, this.searchType)
-                    .map(response => <ISearchResults>response)
+                    .map(response => <IWSearchResults>response)
                     .subscribe(
-                        wikiresults => { this.showResults(wikiresults); },
+                        wikiresults => { this.wikiResults(wikiresults); },
                         error => console.log(error)
                     );
             });
@@ -76,16 +74,7 @@ export class SearchResultComponent implements OnInit {
                 error => console.log(error)
             );
     }
-    
-    private getRelatedDocs(docid: string, offset: 0, maxResults: 10) {
-        this._relatedDocService.getRelatedDocs(this.docid, offset, maxResults)
-            .map(response => <IRelatedDocs>response)
-            .subscribe(
-            	results => { this.showResults(results); },
-            	error => console.log(error)
-            );
-    }
-    
+
     private showResults(search_results: ISearchResults) {
         search_results.results.forEach(obj => {
             obj['url'] = this.articleUrl + obj._id;

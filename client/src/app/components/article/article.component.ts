@@ -23,6 +23,7 @@ export class ArticleComponent implements OnInit {
 
     related_docs: ISearchResults = null;
     docId = '';
+    maxResults = 5;
     article: Article = null;
     articleComments: IComments = null;
     comment: string = '';
@@ -49,7 +50,7 @@ export class ArticleComponent implements OnInit {
                 error => console.log(error)
             );
         
-        this._relatedDocService.getRelatedDocs(this.docId)
+        this._relatedDocService.getRelatedDocs(this.docId, this.maxResults)
             .map (response => <ISearchResults>response)
             .subscribe (
                 results => { this.showRelatedDocs(results);},

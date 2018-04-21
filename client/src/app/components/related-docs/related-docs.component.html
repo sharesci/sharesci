@@ -1,16 +1,16 @@
 <div class="container search-container">
 	<div class="mb20">
 		<h1>Search Results</h1>
-		<h2 class="lead">Showing results for search of <strong class="text-danger">{{search_token}}</strong></h2>
+		<h2 class="lead">Showing results for search of <strong class="text-danger">{{docid}}</strong></h2>
 	</div>
 
-	<section class="col-xs-12 col-sm-6 col-md-12" *ngFor='let result of search_results?.results'>
+	<section class="col-xs-12 col-sm-6 col-md-12" *ngFor='let result of related_docs_results?.results'>
 		<article class="search-result row">
 			<div class="col-xs-12 col-sm-12 col-md-8">
 				<h3><a [routerLink]="['/article', result._id]" title="">{{result.title}}</a></h3>
 			<div class="abstract">
 				<h5>{{result.abstract}}</h5>
-				<h6><a [routerLink]="['/relateddocs', result._id]">More like this</a></h6>
+				<h6><a [routerLink]="['/relateddocs', result._id]" title="">More like this</a></h6>
 			</div>
 			<div class="link">
 				<h5><a [routerLink]="['/article', result._id]">{{result.url}}</a></h5>
@@ -45,21 +45,4 @@
 			<a (click)="pageClicked(pager.totalPages)">Last</a>
 		</li>
 	</ul>
-</div>
-
-<div class="container wiki-search-container">
-	<div class="mb20">
-		<h1>Wikipedia Results</h1>
-		<h2 class="lead">Related content for the search for <strong class="text-danger">{{search_token}}</strong></h2>
-	</div>
-
-	<section class="col-xs-12 col-sm-6 col-md-12" *ngFor="let result of (wiki_search_results?.results ? wiki_search_results?.results.concat([]).slice(0, 5): [])">
-		<article class="wiki-search-result row">
-			<div class="col-xs-12 col-sm-12 col-md-8">
-				<h3><a href="{{result.url}}">{{result.title}}</a></h3>
-				<ul class="meta-search list-inline">
-				</ul>
-			</div>
-		</article>
-	</section>
 </div>

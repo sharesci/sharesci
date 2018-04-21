@@ -11,6 +11,7 @@ import { NavbarComponent } from './components/navbar/navbar.component'
 import { HomeComponent } from './components/home/home.component'
 import { CreateAccountComponent } from './components/create-account/create-account.component'
 import { SearchResultComponent } from './components/search-result/search-result.component'
+import { RelatedDocsComponent } from './components/related-docs/related-docs.component'
 import { ProfileComponent } from './components/profile/profile.component'
 import { ArticleComponent } from './components/article/article.component'
 import { ArticleUploadComponent } from './components/article-upload/article-upload.component'
@@ -22,6 +23,7 @@ const appRoutes: Routes = [
   { path: 'home', component: HomeComponent },
   { path: 'createaccount', component: CreateAccountComponent },
   { path: 'searchresult/:term', component: SearchResultComponent },
+  { path: 'relateddocs/:docid', component: RelatedDocsComponent },
   { path: 'profile/:username', component: ProfileComponent },
   { path: 'article/:id', component: ArticleComponent },
   { path: 'article/upload/:username', component: ArticleUploadComponent },
@@ -39,7 +41,7 @@ const appRoutes: Routes = [
   ],
   declarations: [ AppComponent, LoginComponent, NavbarComponent, HomeComponent,
                   CreateAccountComponent, SearchResultComponent, ProfileComponent,
-                  ArticleComponent, ArticleUploadComponent,
+                  ArticleComponent, ArticleUploadComponent, RelatedDocsComponent,
                 ],
   bootstrap: [AppComponent]
 })

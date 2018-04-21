@@ -1,0 +1,127 @@
+
+.search-container { 
+    float: left;
+    margin-top: 50px;
+    margin-left: 20px;
+    width: 65%;
+}
+
+ul.pagination {
+	user-select: none;
+	-moz-user-select: none;
+	-webkit-user-select: none;
+}
+
+.mb20 { 
+    margin-bottom: 20px;
+}
+
+.abstract h5 {
+    font-size: .9176em;
+    color: #494949;
+    line-height: 16px;
+    max-height: 48px;
+    margin: 0 0 0.2em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-wrap: break-word;
+    position: relative;
+}
+
+.abstract h6 {
+    font-size: .9176em;
+    color: #888;
+    float: right;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+}
+
+.link h5 {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #888;
+}
+
+.link {
+    color: #888;
+}
+
+.link.visited {
+    color: #6d59a3;
+}
+
+h2.lead { 
+    font: normal normal 1.125em "Roboto",Arial,Verdana,sans-serif; 
+    color: #2a3644; 
+    margin: 0; 
+    padding-bottom: 10px; 
+}
+
+.search-result:first-child { 
+    margin-top: 0 !important; 
+}
+
+.search-result { 
+    margin-top: 20px;
+}
+
+.search-result.row {
+    box-sizing: border-box;
+    margin-bottom: 1.5em;
+    position: relative;
+    word-wrap: break-word;
+}
+
+.search-result ul { 
+    padding-left: 0 !important; 
+    list-style: none;  
+}
+
+.search-result ul li { 
+    font: 400 normal .85em "Roboto",Arial,Verdana,sans-serif; 
+    line-height: 30px; 
+}
+
+.search-result ul li i { 
+    padding-right: 5px; 
+}
+
+.search-result h3 { 
+    font: 500 normal 1.375em "Roboto",Arial,Verdana,sans-serif;
+    margin-top: 0 !important; 
+    margin-bottom: 10px !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.search-result h5 {
+    font-size: .9176em;
+    color: #494949;
+    line-height: 16px;
+    max-height: 48px;
+    //margin: 0 0 0.2em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-wrap: break-word;
+}
+
+.search-result h3 > a, { 
+    color: #0263ff !important; 
+}
+
+.search-result p { font: normal normal 1.125em "Roboto",Arial,Verdana,sans-serif; } 
+.search-result a i { color: #fff !important; }
+
+.search-result span.border { 
+    display: block; 
+    width: 97%; 
+    margin: 0 15px; 
+    border-bottom: 1px dotted #ccc; 
+}
+
+.btn.btn-square {
+  border-radius: 0;
+}
