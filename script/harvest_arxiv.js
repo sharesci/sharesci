@@ -15,12 +15,12 @@ function oaiXmlToJson(oaiXML) {
 	oaiXML('categories', metadatax).remove();
 	metadatax.each((index, obj) => {
 		xml2js.parseString(oaiXML.xml(obj), {explicitArray: false, trim: true}, (err, data) => {
-			data  =  data['arXiv'];
+			data = data['arXiv'];
 			delete data['$'];
 			oth = {};
 			oth['arxiv_id'] = data['id'];
 			delete data['id'];
-			data['authors']  =  data['authors']['author'];
+			data['authors'] = data['authors']['author'];
 			if(data['authors'].keyname) {
 				data['authors'].lastname = data['authors'].keyname;
 				data['authors'].firstname = data['authors'].forenames;
@@ -48,7 +48,7 @@ function oaiXmlToJson(oaiXML) {
 				delete data.doi;
 			}
 
-			data['references']  =  [];
+			data['references'] = [];
 			data['other'] = oth;
 			//console.log(data);
 			alldata.push(data);
@@ -62,11 +62,44 @@ function mongoInsertPapers(paperdata, callback) {
 		assert.equal(null, err);
 		console.log("Connected successfully to server for inserting papers");
 		var collection = db.collection('papers');
-		collection.insertMany(paperdata, (err, result) => {
-			assert.equal(err, null);
-			console.log("Inserted " + result.result.n + " papers");
-			db.close();
-			callback(result);
+		var papersInserted = 0, papersUpdated = 0, papersDeleted = 0;
+		arxiv_ids_map = {}
+		all_arxiv_ids = []
+		for(var count = 0; count < paperdata.length; count++) {
+			arxiv_ids_map[paperdata[count]['other']['arxiv_id']] = paperdata[count];
+			all_arxiv_ids.push(paperdata[count]['other']['arxiv_id']);
+		}
+
+		collection.find({'other.arxiv_id': {'$in': all_arxiv_ids}}, {'_id': 1, 'other.arxiv_id': 1}).toArray((err, docs) => {
+			if (err) {
+				console.error('There was an error when trying to find duplicates in Mongo: ', err);
+			}
+
+			seen_arxiv_ids = {}
+
+			for(let i = 0; i < docs.length; i++) {
+				if (docs[i]['other']['arxiv_id'] in seen_arxiv_ids) {
+					collection.deleteOne({'_id': docs[i]['_id']});
+					papersDeleted++;
+					continue;
+				}
+				collection.update({'_id': docs[i]['_id']}, arxiv_ids_map[doc[i]['other']['arxiv_id']]);
+				seen_arxiv_ids[docs[i]['other']['arxiv_id']] = true;
+				papersUpdated++;
+				delete arxiv_ids_map[docs[i]['other']['arxiv_id']]
+			}
+			papers_to_insert = [];
+			for (let arxiv_id in arxiv_ids_map) {
+				papers_to_insert.push(arxiv_ids_map[arxiv_id]);
+				papersInserted++;
+			}
+			collection.insertMany(papers_to_insert, (err, result) => {
+				console.log('Sent request to DB server: ' + papersInserted + ' inserts, ' + papersUpdated + " updates, " + papersDeleted + ' deletions');
+				callback();
+				console.log('Notifying search server to reload...');
+				request.post('http://localhost:8000/notifynewdoc', (err, res, body) => {console.log('Search server reloaded.'); })
+				db.close();
+			});
 		});
 	});
 }
@@ -79,10 +112,22 @@ function harvestOAI(url, resume_url, last_promise, completion_callback) {
 		var error = vals[0],
 			response = vals[1],
 			xml = vals[2];
-		
-		if (error || response.statusCode != 200) {
-			console.error(error, '\nstatusCode = ' + response.statusCode);
+
+		if (error) {
+			console.error(error, 'statusCode = ' + response.statusCode);
 			return;
+		}
+
+		if (response.statusCode == 503) {
+			// Status 503 is for rate-limiting. Rather than parsing
+			// the whole response, we'll just wait five minutes and
+			// hope its enough.
+			console.log('Status 503 received. Waiting 5 minutes. Here\'s the full response body in case you\'re interested: ', xml);
+			setTimeout(() => {harvestOAI(url, resume_url, last_promise, completion_callback);}, 30000);
+			return;
+		}
+		if (response.statusCode != 200) {
+			console.error('Non-200/503 status code received (code was ' + response.statusCode + '). Aborting since I don\'t know what it means. Here is the response: ', xml);
 		}
 		var xmld = cheerio.load(xml, {
 			xmlMode: true
@@ -103,7 +148,10 @@ function harvestOAI(url, resume_url, last_promise, completion_callback) {
 			});
 		});
 		if (resumptionToken && 0 < resumptionToken.length) {
-			setTimeout(()=>{harvestOAI(resume_url + resumptionToken, resume_url, mongoPromise, completion_callback);}, 30000);
+			timer_promise = new Promise((resolve, reject) => {setTimeout(() => {resolve();}, 25000);});
+			Promise.all([last_promise, timer_promise]).then(()=>{
+				harvestOAI(resume_url + resumptionToken, resume_url, mongoPromise, completion_callback);
+			});
 		} else if (completion_callback !== undefined && completion_callback !== null) {
 			mongoPromise.then(() => {
 				completion_callback();
