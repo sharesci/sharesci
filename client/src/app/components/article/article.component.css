@@ -28,3 +28,32 @@
 .mb20 { 
     margin-bottom: 20px;
 }
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th {
+    padding: 8px;
+    background-color: rgb(66, 139, 202) !important;
+    color: white;
+    display: block;
+}
+
+td {
+    padding: 8px;
+    overflow: hidden;
+    word-wrap: break-word;
+    height: 100px;
+}
+
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+    display: block;
+}
+
+.btn.btn-success.btn-md.pull-right {
+    background-color: rgb(66, 139, 202);
+    border-color: rgb(66, 139, 202);
+}
