@@ -11,17 +11,20 @@ import { UserRecService } from '../../services/user-rec.service';
 export class HomeComponent {
     searchToken: string = '';
     logo: string = 'assets/logo_clean.png';
-    searchEngine: string;
+    searchType: string;
 	userRec: ISearchResults;
 	isUserLoggedIn: boolean = false;
+	searchTypes: string[] = ['Word2vec', 'Paragraph Vector', 'TF-IDF', 'Augmented TF-IDF'];
+    selectedSearchType = this.searchTypes[0];
 
     constructor(private _sharedService: SharedService, private _userRecService: UserRecService){
-		this.searchEngine = 'word2vec';
 		this.userRec = JSON.parse(localStorage.getItem("userRec"));
 		this.isUserLoggedIn = this._sharedService.isUserLoggedIn;
+		this._sharedService.setSearchType(this.selectedSearchType);
+		this.searchType = this._sharedService.searchType;
 		
         _sharedService.searchType$
-            .subscribe(searchEngine => this.searchEngineCallBack(searchEngine));
+            .subscribe(searchType => this.searchTypeCallBack(searchType));
         
 		_sharedService.isUserLoggedIn$
             .subscribe(loginStatus => this.loginStatusCallBack(loginStatus));
@@ -31,7 +34,7 @@ export class HomeComponent {
     ngOnInit() {
 		if (this.isUserLoggedIn && this.userRec == null) {
 			var userId = localStorage.getItem("currentUser");
-			this._userRecService.getUserRec(userId, this.searchEngine)
+			this._userRecService.getUserRec(userId, this.searchType)
 				.map (response => <ISearchResults>response)
 				.subscribe (
 					results => { this.getUserRecCallBack(results) },
@@ -40,8 +43,8 @@ export class HomeComponent {
 		}
     }
 
-	private searchEngineCallBack(engine: string) {	
-    	this.searchEngine = engine;
+	private searchTypeCallBack(engine: string) {	
+    	this.searchType = engine;
 		this.userRec = null;
 	}
 
@@ -54,5 +57,9 @@ export class HomeComponent {
 
     private getUserRecCallBack(userRec: ISearchResults) {
         this.userRec = userRec;
+    }
+
+    onChange() {
+        this._sharedService.setSearchType(this.selectedSearchType);
     }
 }

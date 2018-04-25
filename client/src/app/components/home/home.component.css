@@ -26,3 +26,7 @@ input {
     display: block;
     text-decoration: none;
 }
+
+.b {
+    list-style: none;
+}

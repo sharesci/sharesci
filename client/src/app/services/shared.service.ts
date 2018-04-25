@@ -6,7 +6,8 @@ import { ISearchResults } from '../models/datacontracts/search-results.interface
 @Injectable()
 export class SharedService {
 
-    isUserLoggedIn = false; 
+    isUserLoggedIn = false;
+    searchType = '';
     
     constructor() {
 		var userId: string = localStorage.getItem("currentUser");
@@ -27,6 +28,11 @@ export class SharedService {
     }
 
     setSearchType(searchType: string) {
+        this.searchType = searchType;
         this.searchTypeChangedSource.next(searchType);
+    }
+
+    getSearchType() {
+        return this.searchType;
     }
 }

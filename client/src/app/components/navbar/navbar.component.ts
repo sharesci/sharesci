@@ -18,7 +18,7 @@ export class NavbarComponent {
     hideLoginBtn: boolean = false;
     searchToken: string = '';
     user: string = '';
-    searchTypes: string[] = ['word2vec', 'paragraphVector', 'tfidf'];
+    searchTypes: string[] = ['Word2vec', 'Paragraph Vector', 'TF-IDF', 'Augmented TF-IDF'];
     selectedSearchType = this.searchTypes[0];
 
     constructor(private _authenticationService: AuthenticationService,

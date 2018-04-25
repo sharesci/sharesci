@@ -13,6 +13,12 @@
 			            <i class="glyphicon glyphicon-search"></i>
 		            </button>
                 </div>
+                <h4>Search Type</h4>
+                <li class="b">
+                    <select (change)="onChange()" [(ngModel)]="selectedSearchType" name="selectedSearchType">
+                        <option *ngFor="let i of searchTypes">{{i}}</option>
+                    </select>
+                </li>
             </div>
 			<div class="row" *ngIf="isUserLoggedIn">
 				<div class="col-lg-4 col-lg-offset-5">

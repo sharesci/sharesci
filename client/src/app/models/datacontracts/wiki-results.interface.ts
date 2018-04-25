@@ -1,4 +1,4 @@
-export interface IWSearchResults {
+export interface IWikiResults {
     errno: number
     errstr: string
     wikiresults: [{

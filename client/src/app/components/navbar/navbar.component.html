@@ -7,7 +7,7 @@
 		<div class="navbar-collapse collapse" id="searchbar">
 			<ul class="nav navbar-nav navbar-right">
 				<li class="b">
-				<select (change)="onChange()" [(ngModel)]="selectedSearchType">
+				<select *ngIf='ishome == false' (change)="onChange()" [(ngModel)]="selectedSearchType">
 					<option *ngFor="let i of searchTypes">{{i}}</option>
 				</select>
 				</li>			
