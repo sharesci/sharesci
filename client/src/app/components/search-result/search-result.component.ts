@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { ISearchResults } from '../../models/datacontracts/search-results.interface';
-import { IWSearchResults } from '../../models/datacontracts/wiki-results.interface';
+import { IWikiResults } from '../../models/datacontracts/wiki-results.interface';
 import { SearchService } from '../../services/search.service';
 import { RelatedDocService } from '../../services/related-doc.service';
 import { PagerService } from '../../services/pager.service';
@@ -18,15 +18,16 @@ import { saveAs } from 'file-saver'
     styleUrls: ['./search-result.component.css']
 })
 
-export class SearchResultComponent implements OnInit {
+export class SearchResultComponent {
     search_results: ISearchResults = null;
-    wiki_search_results: IWSearchResults = null;
+    wiki_results: IWikiResults = null;
     search_token = '';
     docid = '';
     pager: any = {};
     resultPerPage = 10;
-    searchType = 'word2vec';
+    searchType: string = '';
     articleUrl = 'http://sharesci.org/#/article/';
+    maxResults = 5;
 
     constructor(private _pagerService: PagerService,
                 private _searchService: SearchService,
@@ -36,14 +37,10 @@ export class SearchResultComponent implements OnInit {
                 private _relatedDocService: RelatedDocService
                 ) {
 
-        _sharedService.searchType$
-            .subscribe(searchType => {
-                this.searchType = searchType;
-            });
-
         _route.params
             .subscribe(params => {
                 this.search_token = this._route.snapshot.params['term'];
+                this.searchType = this._sharedService.searchType;
                 this._searchService.search(this.search_token, this.searchType)
                     .map(response => <ISearchResults>response)
                     .subscribe(
@@ -51,28 +48,13 @@ export class SearchResultComponent implements OnInit {
                         error => console.log(error)
                     );
                 this._searchService.wikiSearch(this.search_token, this.searchType)
-                    .map(response => <IWSearchResults>response)
+                    .map(response => <IWikiResults>response)
                     .subscribe(
                         wikiresults => { this.wikiResults(wikiresults); },
                         error => console.log(error)
                     );
             });
-    }
 
-    ngOnInit() {
-        this.search_token = this._route.snapshot.params['term'];
-        this._searchService.search(this.search_token, this.searchType)
-            .map (response => <ISearchResults>response)
-            .subscribe (
-                results => { this.showResults(results); this.setPage(1);},
-                error => console.log(error)
-            );
-        this._searchService.wikiSearch(this.search_token, this.searchType)
-            .map (response => <IWSearchResults>response)
-            .subscribe (
-                wikiresults => { this.wikiResults(wikiresults);},
-                error => console.log(error)
-            );
     }
 
     private showResults(search_results: ISearchResults) {
@@ -82,8 +64,8 @@ export class SearchResultComponent implements OnInit {
         this.search_results = search_results;
     }
 
-    private wikiResults(wiki_search_results: IWSearchResults) {
-        this.wiki_search_results = wiki_search_results;
+    private wikiResults(wiki_results: IWikiResults) {
+        this.wiki_results = wiki_results;
     }
 
     private pageClicked(page: number) {
@@ -115,7 +97,7 @@ export class SearchResultComponent implements OnInit {
             );
 
         this._searchService.wikiSearch(this.search_token, this.searchType, offset, maxResults)
-            .map(response => <IWSearchResults>response)
+            .map(response => <IWikiResults>response)
             .subscribe(
              wikiresults => { this.wikiResults(wikiresults); },
              error => console.log(error)

@@ -3,7 +3,6 @@ const
 	assert = require('assert'),
 	session = require('express-session'),
 	request = require('request'),
-	rp = require('request-promise'),
 	ObjectId = require('mongodb').ObjectId,
 	MongoClient = require('mongodb').MongoClient,
 	mongo_url = 'mongodb://localhost:27017/sharesci',
@@ -34,11 +33,8 @@ function userRecommendations(req, res) {
 	if(!searchParams.uri) {
 		searchParams['uri'] = 'http://137.148.142.215:8000/user-recommendations';
 	}
-	if(!searchParams.collection) {
-		searchParams['collection'] = 'papers';
-	}
-	if(!searchParams.engine) {
-		searchParams['engine'] = 'mongo';
+	if(!searchParams.searchType) {
+		searchParams['searchType'] = 'mongo';
 	}
 	if(!searchParams.getFullDocs) {
 		searchParams['getFullDocs'] = false;
@@ -50,23 +46,30 @@ function userRecommendations(req, res) {
 			'offset': searchParams.offset,
 			'userid': searchParams.userid,
 			'maxResults': searchParams.maxResults,
-			'collection': searchParams.collection,
-			'engine': searchParams.engine,
+			'searchType': searchParams.searchType,
 			'getFullDocs': searchParams.getFullDocs
 		},
 		json: true
 	};
 
-	rp(options)
-	.then((searchResults) => {
-		searchResults['options'] = options;
-		return new Promise((resolve, reject) => {getInfo(searchResults, resolve, reject)}).catch(err => {console.error(err)});
-	})
-	.then((searchResults) => {
-		responseJSON.results = searchResults.results;
-		responseJSON.numResults = searchResults.numHits;
-		res.json(responseJSON);
-		res.end();
+	var searchPromise = new Promise((resolve, reject) => { 
+		request(options, (error, response, body) => { 
+			if (error) {
+				reject(error);
+			} else {
+				resolve(response);
+			}
+		});
+	});
+	searchPromise.then((results) => {
+		var searchResults = results;
+		searchResults['search_token'] = options.qs.q;
+		var metaDataPromise = new Promise((resolve, reject) => { getInfo(searchResults, resolve, reject); });
+		metaDataPromise.then((metadata) => {
+			responseJSON.results = metadata;
+			res.json(responseJSON);
+			res.end();
+		})
 	})
 	.catch((err) => {
 		responseJSON.errno = 1;
@@ -83,9 +86,8 @@ function getInfo(params, resolve, reject) {
 			reject(err);
 			return;
 		}
-		
-		var idObject = params.results.map(obj => { return ObjectId(obj._id) });
-		var newObj = params.results.map(obj => {
+		var idObject = params.body.results.map(obj => { return ObjectId(obj._id) });
+		var newObj = params.body.results.map(obj => {
 			var nObj = {};
 			nObj[obj._id] = obj.score;
 			return nObj;
@@ -100,9 +102,14 @@ function getInfo(params, resolve, reject) {
 
 		cursor.toArray((err, results) => {
 			if(err) {
-				reject(err);
+				rej(err);
 			} else {
-				resolve(sortByScore(results));
+				var replace = new RegExp(params.search_token, "gi");
+				results.forEach(obj => {
+					obj.abstract = obj.abstract.replace(replace, '<b>$&</b>');
+				});
+				var finalResult = sortByScore(results);
+				resolve(finalResult);
 			}
 			db.close();
 		});

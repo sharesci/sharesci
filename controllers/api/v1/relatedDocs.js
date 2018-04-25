@@ -15,7 +15,7 @@ function relatedDocuments(req, res){
 			res(err);
 			return;
 		}
-		var cursor = db.collection(req.query.collection).find({'$and':[{'$text': {'$search': req.query.docid}}]}, {'_id': 1, score: {'$meta': 'textScore'}});
+		var cursor = db.collection('papers').find({'$and':[{'$text': {'$search': req.query.docid}}]}, {'_id': 1, score: {'$meta': 'textScore'}});
 		var numHitsPromise = cursor.count();
 		numHitsPromise.then((data)=>{console.log(data);});
 		cursor.sort({'score': {'$meta': 'textScore'}});
