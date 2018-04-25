@@ -104,10 +104,6 @@ function getInfo(params, resolve, reject) {
 			if(err) {
 				rej(err);
 			} else {
-				var replace = new RegExp(params.search_token, "gi");
-				results.forEach(obj => {
-					obj.abstract = obj.abstract.replace(replace, '<b>$&</b>');
-				});
 				var finalResult = sortByScore(results);
 				resolve(finalResult);
 			}
