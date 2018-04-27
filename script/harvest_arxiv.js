@@ -7,6 +7,7 @@ var request = require('request'),
 
 // Connection URL
 var mongo_url = 'mongodb://localhost:27017/sharesci';
+var search_server_url = 'http://localhost:8000/notifynewdoc';
 
 
 function oaiXmlToJson(oaiXML) {
@@ -58,7 +59,7 @@ function oaiXmlToJson(oaiXML) {
 }
 
 function mongoInsertPapers(paperdata, callback) {
-	MongoClient.connect(mongo_url, function(err, db) {
+	MongoClient.connect(mongo_url, {reconnectInterval: 10000, connectTimeoutMS: 60000}, function(err, db) {
 		assert.equal(null, err);
 		console.log("Connected successfully to server for inserting papers");
 		var collection = db.collection('papers');
@@ -97,7 +98,7 @@ function mongoInsertPapers(paperdata, callback) {
 				console.log('Sent request to DB server: ' + papersInserted + ' inserts, ' + papersUpdated + " updates, " + papersDeleted + ' deletions');
 				callback();
 				console.log('Notifying search server to reload...');
-				request.post('http://localhost:8000/notifynewdoc', (err, res, body) => {console.log('Search server reloaded.'); })
+				request.post(search_server_url, (err, res, body) => {console.log('Search server reloaded.'); })
 				db.close();
 			});
 		});
@@ -122,8 +123,8 @@ function harvestOAI(url, resume_url, last_promise, completion_callback) {
 			// Status 503 is for rate-limiting. Rather than parsing
 			// the whole response, we'll just wait five minutes and
 			// hope its enough.
-			console.log('Status 503 received. Waiting 5 minutes. Here\'s the full response body in case you\'re interested: ', xml);
-			setTimeout(() => {harvestOAI(url, resume_url, last_promise, completion_callback);}, 30000);
+			console.log('Status 503 received. Waiting 10 minutes. Here\'s the full response body in case you\'re interested: ', xml);
+			setTimeout(() => {harvestOAI(url, resume_url, last_promise, completion_callback);}, 600000);
 			return;
 		}
 		if (response.statusCode != 200) {
@@ -199,7 +200,7 @@ getLatestFetchPromise.then((latestFetch) => {
 	final_promise.then(() => {
 		// Tell the search server we got new docs
 		console.log('Notifying search server to reload...');
-		request.post('http://localhost:8000/notifynewdoc', (err, res, body) => {
+		request.post(search_server_url, (err, res, body) => {
 			var today = (new Date()).toISOString().split('T')[0]; // Get just the YYYY-MM-DD representation
 			MongoClient.connect(mongo_url, function(err, db) {
 				assert.equal(null, err);
