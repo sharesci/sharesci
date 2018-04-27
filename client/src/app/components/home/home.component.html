@@ -1,8 +1,8 @@
-<div>
+<div class="container">
     <div class="image-container">
         <img src="{{logo}}" width="190" height="230">
     </div>
-    <form>
+    <form class="home-form">
         <div class="form-group">
             <div class="row">
                 <div class="col-lg-4 col-lg-offset-4">
@@ -13,24 +13,31 @@
 			            <i class="glyphicon glyphicon-search"></i>
 		            </button>
                 </div>
-                <h4>Search Type</h4>
-                <li class="b">
-                    <select (change)="onChange()" [(ngModel)]="selectedSearchType" name="selectedSearchType">
-                        <option *ngFor="let i of searchTypes">{{i}}</option>
-                    </select>
-                </li>
             </div>
-			<div class="row" *ngIf="isUserLoggedIn">
-				<div class="col-lg-4 col-lg-offset-5">
-					<h5>Recommended Articles</h5>
-					<div class="vertical-menu">
-						<div *ngFor="let result of userRec?.results" >
-							<a [routerLink]="['/article', result._id]"> {{result.title}}</a>
-						</div>
+            <!--
+            <div class="row">
+                <div class="col-lg-4 col-lg-offset-5">
+                    <h4>Search Type</h4>
+                </div>
+                <div class="col-lg-2 col-lg-offset-5">
+                    <li class="b">
+                        <select (change)="onChange()" [(ngModel)]="selectedSearchType" name="selectedSearchType">
+                            <option *ngFor="let i of searchTypes">{{i}}</option>
+                        </select>
+                    </li>
+                </div>
+            </div>
+            -->
+        </div>
+		<div class="row" *ngIf="isUserLoggedIn">
+			<div class="col-lg-4 col-lg-offset-5">
+				<h5>Recommended Articles</h5>
+				<div class="vertical-menu">
+					<div *ngFor="let result of userRec?.results" >
+						<a [routerLink]="['/article', result._id]"> {{result.title}}</a>
 					</div>
 				</div>
 			</div>
-
-        </div>
+		</div>
     </form>
 </div>

@@ -47,7 +47,7 @@ export class SearchResultComponent {
                         results => { this.showResults(results); this.setPage(1); },
                         error => console.log(error)
                     );
-                this._searchService.wikiSearch(this.search_token, this.searchType)
+                this._searchService.wikiSearch(this.search_token, 'wiki')
                     .map(response => <IWikiResults>response)
                     .subscribe(
                         wikiresults => { this.wikiResults(wikiresults); },

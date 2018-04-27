@@ -26,11 +26,18 @@ function index(req, res) {
 	if(searchParams.maxResults) {
 		searchParams.maxResults = parseInt(searchParams.maxResults);
 	}
-	if(!searchParams.uri) {
-		searchParams['uri'] = 'http://137.148.142.215:8000/search';
-	}
 	if(!searchParams.searchType) {
-		searchParams['searchType'] = 'word2vec';
+		searchParams['searchType'] = 'Augmented TF-IDF';
+	}
+	if(!searchParams.uri) {
+		if (searchParams.searchType == 'wiki') {
+			searchParams['uri'] = 'http://137.148.142.215:1025/search';
+		} else {
+			searchParams['uri'] = 'http://137.148.142.215:8000/search';
+		}
+	}
+	if(!searchParams.collection) {
+		searchParams['collection'] = 'papers';
 	}
 	if(!searchParams.getFullDocs) {
 		searchParams['getFullDocs'] = false;
@@ -57,33 +64,37 @@ function index(req, res) {
 			}
 		});
 	});
+
 	searchPromise.then((results) => {
-		var searchResults = results;
-		searchResults['search_token'] = options.qs.q;
-		var metaDataPromise = new Promise((resolve, reject) => { getInfo(searchResults, resolve, reject); });
-		metaDataPromise.then((metadata) => {
-			responseJSON.results = metadata;
-			res.json(responseJSON);
-			res.end();
-		})
+		if (searchParams.searchType == 'wiki') {
+			return Promise.resolve(results);
+		} else {
+			var metadataPromise = new Promise((resolve, reject) => { getInfo(results, options, resolve, reject); });
+			return Promise.all([results, metadataPromise]);	
+		}
+	})
+	.then((results) => {
+		responseJSON.results = results[1];
+		res.json(responseJSON);
+		res.end();
 	})
 	.catch((err) => {
 		responseJSON.errno = 1;
-		responseJSON.errstr = err;
+		responseJSON.errstr = err.message;
 		res.json(responseJSON);
 		res.end();
 	});
 }
 
-function getInfo(params, resolve, reject) {
+function getInfo(results, params, resolve, reject) {
 	MongoClient.connect(mongo_url, function(err, db) {
 		if(err !== null) {
 			console.error("Error opening database");
 			reject(err);
 			return;
 		}
-		var idObject = params.body.results.map(obj => { return ObjectId(obj._id) });
-		var newObj = params.body.results.map(obj => {
+		var idObject = results.body.results.map(obj => { return ObjectId(obj._id) });
+		var newObj = results.body.results.map(obj => {
 			var nObj = {};
 			nObj[obj._id] = obj.score;
 			return nObj;
@@ -100,12 +111,8 @@ function getInfo(params, resolve, reject) {
 			if(err) {
 				rej(err);
 			} else {
-				var replace = new RegExp(params.search_token, "gi");
-				results.forEach(obj => {
-					obj.abstract = obj.abstract.replace(replace, '<b>$&</b>');
-				});
-				var finalResult = sortByScore(results);
-				resolve(finalResult);
+				var finalResult = boldSearchTerms(params.qs.q, results);
+				resolve(sortByScore(finalResult));
 			}
 			db.close();
 		});
@@ -116,6 +123,17 @@ function sortByScore(result, score) {
 	return result.sort(function(a, b) {
   		return b.score == a.score ? 0 : +(b.score > a.score) || -1;
   	});
+}
+
+function boldSearchTerms(search_token, search_results) {
+	var words = search_token.split(" ");
+
+	search_results.forEach(obj => {
+		words.forEach(token => {
+			obj.abstract = obj.abstract.replace(new RegExp(token, "gi"), '<b>$&</b>');
+		});
+	});
+	return search_results;
 }
 
 module.exports = {
