@@ -129,8 +129,12 @@ function getArticle(req, res) {
 			if(typeof articleJson['file']['originalname'] === 'string') {
 				headers['Content-disposition'] = 'inline; filename='+articleJson['file']['originalname'];
 			}
+			var filePathRoot = __dirname + '/../../../uploads/';
+			if (typeof articleJson['file']['pathRoot'] === 'string') {
+				filePathRoot = articleJson['file']['pathRoot'];
+			}
 			var sendfileOptions = {
-				root: __dirname + '/../../../uploads/',
+				root: filePathRoot,
 				dotfiles: 'deny',
 				headers: headers
 			};
