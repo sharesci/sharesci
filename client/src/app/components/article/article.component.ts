@@ -41,28 +41,30 @@ export class ArticleComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.docId = this._route.snapshot.params['id'];
+        this._route.params.subscribe(params => {
+            this.docId = params['id'];
 
-        this._articleService.getArticle(this.docId, false)
-            .map(response => <IArticle>response)
-            .subscribe(
-                results => this.showArticleData(results),
-                error => console.log(error)
-            );
-        
-        this._relatedDocService.getRelatedDocs(this.docId, this.maxResults)
-            .map (response => <ISearchResults>response)
-            .subscribe (
-                results => { this.showRelatedDocs(results);},
-                error => console.log(error)
-            );
-        
-        this._commentsService.getComments(this.docId)
-            .map (response => <IComments>response)
-            .subscribe (
-                results => { this.showComments(results); },
-                error => { console.log(error); }
-            );
+            this._articleService.getArticle(this.docId, false)
+                .map(response => <IArticle>response)
+                .subscribe(
+                    results => this.showArticleData(results),
+                    error => console.log(error)
+                );
+
+            this._relatedDocService.getRelatedDocs(this.docId, this.maxResults)
+                .map (response => <ISearchResults>response)
+                .subscribe (
+                    results => { this.showRelatedDocs(results);},
+                    error => console.log(error)
+                );
+
+            this._commentsService.getComments(this.docId)
+                .map (response => <IComments>response)
+                .subscribe (
+                    results => { this.showComments(results); },
+                    error => { console.log(error); }
+                );
+        })
     }
 
     showArticleData(articleWrapper: IArticle) {
