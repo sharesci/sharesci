@@ -10,7 +10,7 @@ import { UserRecService } from '../../services/user-rec.service';
 
 export class HomeComponent {
     searchToken: string = '';
-    logo: string = 'assets/logo_clean.png';
+    logo: string = 'assets/logotype.png';
     searchType: string;
 	userRec: ISearchResults;
 	isUserLoggedIn: boolean = false;
