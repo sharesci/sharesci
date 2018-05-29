@@ -1,47 +1,57 @@
-<div class="container search-container">
-	<div class="mb20">
-		<h1>Search Results</h1>
-		<h2 class="lead"><strong class="text-danger">{{search_results?.numResults}}</strong> results were found for the search for <strong class="text-danger">{{search_token}}</strong></h2>
+<div class="container-fluid search-container">
+	<div class="row">
+		<section class="col-xs-12 col-sm-8 col-md-8">
+			<div class="search-title">
+				<h1>Search Results</h1>
+				<h2 class="lead">Showing results for search of <strong class="text-danger">{{search_token}}</strong></h2>
+			</div>
+			<article class="search-result row" *ngFor='let result of search_results?.results'>
+				<div class="col-xs-12 col-sm-11 col-md-11">
+					<h3><a [routerLink]="['/article', result._id]" title="">{{result.title}}</a></h3>
+					<div class="abstract">
+						<h5><span [innerHTML]="result.abstract"></span></h5>
+						<h5><a [routerLink]="['/article', result._id]">{{result.url}}</a></h5>
+						<h5 class="related"><a [routerLink]="['/relateddocs', result._id]">More like this</a></h5>
+					</div>
+					<div class="link">
+						
+					</div>
+				</div>
+				<div class="buttons">
+					<div class="col-xs-12 col-sm-1 col-md-1 excerpet">
+						<div class="btn btn-default btn-lg btn-square">
+							<i class="fa fa-external-link" (click)="viewPdf(result._id, false)" aria-hidden="true"></i>
+						</div>
+						<div class="btn btn-default btn-lg btn-square">
+							<i class="fa fa-download" (click)="viewPdf(result._id, true, result.title)" aria-hidden="true"></i>
+						</div>
+					</div>
+				</div>
+			</article>
+			<ul *ngIf="pager.pages && pager.pages.length" class="pagination">
+				<li [ngClass]="{disabled:pager.currentPage === 1}">
+					<a (click)="pageClicked(1)">First</a>
+				</li>
+				<li [ngClass]="{disabled:pager.currentPage === 1}">
+					<a (click)="pageClicked(pager.currentPage - 1)">Previous</a>
+				</li>
+				<li *ngFor="let page of pager.pages" [ngClass]="{active:pager.currentPage === page}">
+					<a (click)="pageClicked(page)">{{page}}</a>
+				</li>
+				<li [ngClass]="{disabled:pager.currentPage === pager.totalPages}">
+					<a (click)="pageClicked(pager.currentPage + 1)">Next</a>
+				</li>
+				<li [ngClass]="{disabled:pager.currentPage === pager.totalPages}">
+					<a (click)="pageClicked(pager.totalPages)">Last</a>
+				</li>
+			</ul>
+		</section>
+		<div class="wiki-title">
+			<h1>Wikipedia Results</h1>
+			<h2 class="lead">Related content for the search for <strong class="text-danger">{{search_token}}</strong></h2>
+		</div>
+		<section class="col-xs-12 col-sm-4 col-md-4" *ngFor='let result of wiki_results?.results'>
+			<h3><a href="{{result.url}}">{{result.title}}</a></h3>
+		</section>
 	</div>
-
-	<section class="col-xs-12 col-sm-6 col-md-12" *ngFor='let result of search_results?.results'>
-		<article class="search-result row">
-			<div class="col-xs-12 col-sm-12 col-md-8">
-				<h3><a [routerLink]="['/article', result._id]" title="">{{result.title}}</a></h3>
-				<ul class="meta-search list-inline">
-					<!--<li><span>{{result.dop}}</span></li> 
-					<li><span *ngFor='let name of result.authors'>{{name + ", "}}</span></li>
-					<li><i class="glyphicon glyphicon-tags"></i> <span *ngFor='let tag of result.tags'>{{tag + ", "}}</span></li>-->
-				</ul>
-			</div>
-
-			<div class="col-xs-12 col-sm-12 col-md-4 excerpet">
-				<div class="btn btn-default btn-lg btn-square">
-					<i class="fa fa-external-link" (click)="viewPdf(result._id, false)" aria-hidden="true"></i>
-				</div>
-				<div class="btn btn-default btn-lg btn-square">
-					<i class="fa fa-download" (click)="viewPdf(result._id, true, result.title)" aria-hidden="true"></i>
-				</div>
-			</div>
-			<span class="clearfix borda"></span>
-		</article>
-	</section>
-
-	<ul *ngIf="pager.pages && pager.pages.length" class="pagination">
-		<li [ngClass]="{disabled:pager.currentPage === 1}">
-			<a (click)="pageClicked(1)">First</a>
-		</li>
-		<li [ngClass]="{disabled:pager.currentPage === 1}">
-			<a (click)="pageClicked(pager.currentPage - 1)">Previous</a>
-		</li>
-		<li *ngFor="let page of pager.pages" [ngClass]="{active:pager.currentPage === page}">
-			<a (click)="pageClicked(page)">{{page}}</a>
-		</li>
-		<li [ngClass]="{disabled:pager.currentPage === pager.totalPages}">
-			<a (click)="pageClicked(pager.currentPage + 1)">Next</a>
-		</li>
-		<li [ngClass]="{disabled:pager.currentPage === pager.totalPages}">
-			<a (click)="pageClicked(pager.totalPages)">Last</a>
-		</li>
-	</ul>
 </div>

@@ -2,6 +2,7 @@ const
 	express = require('express'),
 	pdftotext = require('pdftotextjs'),
 	assert = require('assert'),
+	rp = require('request-promise'),
 	ObjectId = require('mongodb').ObjectId,
 	MongoClient = require('mongodb').MongoClient,
 	mongo_url = 'mongodb://localhost:27017/sharesci',
@@ -77,6 +78,26 @@ function getArticle(req, res) {
 				}
 			}
 			db.close();
+
+			// For user recommendations: if user is logged in,
+			// post article id to users history collection
+			if(req.session.user_id) {
+				var articleId = JSON.parse(JSON.stringify(responseJson.articleJson._id));
+				var options = {
+					method: 'POST',
+					uri: 'http://127.0.0.1/api/v1/userHistory',
+					body: {
+						'type': 'docIds',
+						'value': articleId,
+						'userid': req.session.user_id
+					},
+					json: true
+				};
+				rp(options).catch(function(err) {
+					console.error('userHistory article post request unsuccessful');
+				});
+			}
+
 			if(!usePdf) {
 				res.json(responseJson);
 				res.end();
@@ -108,8 +129,12 @@ function getArticle(req, res) {
 			if(typeof articleJson['file']['originalname'] === 'string') {
 				headers['Content-disposition'] = 'inline; filename='+articleJson['file']['originalname'];
 			}
+			var filePathRoot = __dirname + '/../../../uploads/';
+			if (typeof articleJson['file']['pathRoot'] === 'string') {
+				filePathRoot = articleJson['file']['pathRoot'];
+			}
 			var sendfileOptions = {
-				root: __dirname + '/../../../uploads/',
+				root: filePathRoot,
 				dotfiles: 'deny',
 				headers: headers
 			};
@@ -210,6 +235,21 @@ function postArticle(req, res) {
 				};
 				db.collection('papers').insert(docJson, handlerFunc);
 			}
+
+			// Notify the server of new document upload for reindexing purposes
+			var newDocOptions = {
+				method: 'POST',
+				uri: 'http://137.148.142.215:8000/notifynewdoc',
+				body: {
+					_id: docJson._id
+				},
+				json: true
+			};
+			
+			rp(newDocOptions).catch(function(err) { 
+				console.error('notifyNewDocs post request unsuccessful');
+			});
+			
 		})
 		.catch((err) => {
 			console.log(err);
@@ -238,4 +278,3 @@ module.exports = {
 	getArticle: getArticle,
 	postArticle: postArticle
 };
-

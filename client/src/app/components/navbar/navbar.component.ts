@@ -9,7 +9,8 @@ import 'rxjs/add/operator/filter';
 
 @Component({
     selector: 'ss-navbar',
-    templateUrl: './navbar.component.html'
+    templateUrl: './navbar.component.html',
+    styleUrls: ['./navbar.component.css']
 })
 
 export class NavbarComponent {
@@ -17,8 +18,10 @@ export class NavbarComponent {
     hideLoginBtn: boolean = false;
     searchToken: string = '';
     user: string = '';
+    searchTypes: string[] = ['Word2vec', 'Paragraph Vector', 'TF-IDF', 'Augmented TF-IDF'];
+    selectedSearchType = this.searchTypes[0];
 
-    constructor(private _authenticationService : AuthenticationService,
+    constructor(private _authenticationService: AuthenticationService,
                 private _router: Router,
                 private _searchService: SearchService, 
                 private _sharedService: SharedService) {
@@ -34,6 +37,7 @@ export class NavbarComponent {
         
         this.user = localStorage.getItem("currentUser") || "";
         this.hideLoginBtn = !!this.user;
+        this._sharedService.setSearchType(this.selectedSearchType);
     }
 
     setUser(isUserLoggedIn: boolean) {
@@ -66,5 +70,9 @@ export class NavbarComponent {
                 localStorage.removeItem('currentUser');
                 this._sharedService.setLoginStatus(false);
         })
+    }
+
+    onChange() {
+        this._sharedService.setSearchType(this.selectedSearchType);
     }
 }

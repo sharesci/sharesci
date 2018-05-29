@@ -1,69 +1,46 @@
-.container-fluid {
+
+.search-container { 
+    float: left;
     margin-top: 50px;
-    margin-bottom: 5px;
     margin-left: 20px;
-    margin-right: 20px;
-}
-
-.search-result.row {
-    margin-bottom: 1.5em;
-    margin-right: 5px;
-    word-wrap: break-word;
-}
-
-.search-title {
-    margin-top: 50px;
-    margin-bottom: 5px;
-}
-
-.wiki-title {
-    margin-top: 50px;
-    margin-bottom: 5px;
-}
-
-.btn.btn-square {
-  border-radius: 0;
+    width: 65%;
 }
 
 ul.pagination {
-    user-select: none;
-    -moz-user-select: none;
-    -webkit-user-select: none;
+	user-select: none;
+	-moz-user-select: none;
+	-webkit-user-select: none;
 }
 
-h5 {
+.mb20 { 
+    margin-bottom: 20px;
+}
+
+.abstract h5 {
     font-size: .9176em;
     color: #494949;
     line-height: 16px;
     max-height: 48px;
+    margin: 0 0 0.2em;
     overflow: hidden;
     text-overflow: ellipsis;
     word-wrap: break-word;
+    position: relative;
 }
 
-
-.related {
+.abstract h6 {
     font-size: .9176em;
-    line-height: 16px;
-    max-height: 48px;
     color: #888;
     float: right;
+    position: absolute;
     bottom: 0;
     right: 0;
-    position: absolute;
-}
-
-h3 { 
-    font: 500 normal 1.375em "Roboto",Arial,Verdana,sans-serif;
-    margin-top: 0 !important; 
-    margin-bottom: 10px !important;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 .link h5 {
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     color: #888;
 }
 
@@ -90,6 +67,13 @@ h2.lead {
     margin-top: 20px;
 }
 
+.search-result.row {
+    box-sizing: border-box;
+    margin-bottom: 1.5em;
+    position: relative;
+    word-wrap: break-word;
+}
+
 .search-result ul { 
     padding-left: 0 !important; 
     list-style: none;  
@@ -100,8 +84,28 @@ h2.lead {
     line-height: 30px; 
 }
 
-.search-result ul li { 
+.search-result ul li i { 
     padding-right: 5px; 
+}
+
+.search-result h3 { 
+    font: 500 normal 1.375em "Roboto",Arial,Verdana,sans-serif;
+    margin-top: 0 !important; 
+    margin-bottom: 10px !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.search-result h5 {
+    font-size: .9176em;
+    color: #494949;
+    line-height: 16px;
+    max-height: 48px;
+    //margin: 0 0 0.2em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-wrap: break-word;
 }
 
 .search-result h3 > a, { 
@@ -116,4 +120,8 @@ h2.lead {
     width: 97%; 
     margin: 0 15px; 
     border-bottom: 1px dotted #ccc; 
+}
+
+.btn.btn-square {
+  border-radius: 0;
 }

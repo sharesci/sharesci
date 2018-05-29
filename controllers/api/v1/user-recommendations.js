@@ -8,7 +8,7 @@ const
 	mongo_url = 'mongodb://localhost:27017/sharesci',
 	http = require('http');
 
-function index(req, res) {
+function userRecommendations(req, res) {
 	var responseJSON = {
 		errno: 0,
 		errstr: '',
@@ -17,44 +17,41 @@ function index(req, res) {
 
 	var searchParams = JSON.parse(JSON.stringify(req.query));
 
+	if(!searchParams['userid']) {
+		responseJSON.errno = 5;
+		responseJSON.errstr = 'Valid userid required';
+		res.status(422).json(responseJSON);
+		res.end();
+		return;
+	}
 	if(!searchParams.offset) {
 		searchParams.offset = 0;
-	}
-	if(!searchParams.any) {
-		searchParams['any'] = 'estimation';
 	}
 	if(searchParams.maxResults) {
 		searchParams.maxResults = parseInt(searchParams.maxResults);
 	}
-	if(!searchParams.searchType) {
-		searchParams['searchType'] = 'Augmented TF-IDF';
-	}
 	if(!searchParams.uri) {
-		if (searchParams.searchType == 'wiki') {
-			searchParams['uri'] = 'http://137.148.142.215:1025/search';
-		} else {
-			searchParams['uri'] = 'http://137.148.142.215:8000/search';
-		}
+		searchParams['uri'] = 'http://137.148.142.215:8000/user-recommendations';
 	}
-	if(!searchParams.collection) {
-		searchParams['collection'] = 'papers';
+	if(!searchParams.searchType) {
+		searchParams['searchType'] = 'mongo';
 	}
 	if(!searchParams.getFullDocs) {
 		searchParams['getFullDocs'] = false;
 	}
-
+	
 	var options = {
 		uri: searchParams.uri,
 		qs: {
 			'offset': searchParams.offset,
-			'q': searchParams.any,
+			'userid': searchParams.userid,
 			'maxResults': searchParams.maxResults,
 			'searchType': searchParams.searchType,
 			'getFullDocs': searchParams.getFullDocs
 		},
 		json: true
 	};
-	
+
 	var searchPromise = new Promise((resolve, reject) => { 
 		request(options, (error, response, body) => { 
 			if (error) {
@@ -64,37 +61,33 @@ function index(req, res) {
 			}
 		});
 	});
-
 	searchPromise.then((results) => {
-		if (searchParams.searchType == 'wiki') {
-			return Promise.resolve(results);
-		} else {
-			var metadataPromise = new Promise((resolve, reject) => { getInfo(results, options, resolve, reject); });
-			return Promise.all([results, metadataPromise]);	
-		}
-	})
-	.then((results) => {
-		responseJSON.results = results[1];
-		res.json(responseJSON);
-		res.end();
+		var searchResults = results;
+		searchResults['search_token'] = options.qs.q;
+		var metaDataPromise = new Promise((resolve, reject) => { getInfo(searchResults, resolve, reject); });
+		metaDataPromise.then((metadata) => {
+			responseJSON.results = metadata;
+			res.json(responseJSON);
+			res.end();
+		})
 	})
 	.catch((err) => {
 		responseJSON.errno = 1;
-		responseJSON.errstr = err.message;
+		responseJSON.errstr = err;
 		res.json(responseJSON);
 		res.end();
 	});
 }
 
-function getInfo(results, params, resolve, reject) {
+function getInfo(params, resolve, reject) {
 	MongoClient.connect(mongo_url, function(err, db) {
 		if(err !== null) {
 			console.error("Error opening database");
 			reject(err);
 			return;
 		}
-		var idObject = results.body.results.map(obj => { return ObjectId(obj._id) });
-		var newObj = results.body.results.map(obj => {
+		var idObject = params.body.results.map(obj => { return ObjectId(obj._id) });
+		var newObj = params.body.results.map(obj => {
 			var nObj = {};
 			nObj[obj._id] = obj.score;
 			return nObj;
@@ -111,8 +104,12 @@ function getInfo(results, params, resolve, reject) {
 			if(err) {
 				rej(err);
 			} else {
-				var finalResult = boldSearchTerms(params.qs.q, results);
-				resolve(sortByScore(finalResult));
+				var replace = new RegExp(params.search_token, "gi");
+				results.forEach(obj => {
+					obj.abstract = obj.abstract.replace(replace, '<b>$&</b>');
+				});
+				var finalResult = sortByScore(results);
+				resolve(finalResult);
 			}
 			db.close();
 		});
@@ -125,17 +122,7 @@ function sortByScore(result, score) {
   	});
 }
 
-function boldSearchTerms(search_token, search_results) {
-	var words = search_token.split(" ");
-
-	search_results.forEach(obj => {
-		words.forEach(token => {
-			obj.abstract = obj.abstract.replace(new RegExp(token, "gi"), '<b>$&</b>');
-		});
-	});
-	return search_results;
-}
-
 module.exports = {
-	index: index
+	userRecommendations: userRecommendations
 };
+

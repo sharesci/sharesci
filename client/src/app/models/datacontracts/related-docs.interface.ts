@@ -1,6 +1,6 @@
 import { Author } from '../entities/author.entity'
 
-export interface ISearchResults {
+export interface IRelatedDocs {
     errno: number
     errstr: string
     numResults: number

@@ -10,7 +10,7 @@ import { SharedService } from '../../services/shared.service';
 })
 
 export class LoginComponent {
-    logo: string = 'assets/logo.jpg';
+    logo: string = 'assets/logo_clean.png';
     username: string;
     password: string;
     errstr: string;
