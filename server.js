@@ -7,6 +7,9 @@ const
 	tls_options = require('./util/tls-options'),
 	rootRouter = require('./routes/index');
 
+const httpPort = 80;
+const httpsPort = 443;
+
 const app = express();
 
 var https_options = tls_options;
@@ -32,21 +35,21 @@ app.use('/', rootRouter);
 app.use('/', express.static(__dirname + '/client/dist'));
 
 try {
-	httpServer = http.createServer(app).listen(80);
+	httpServer = http.createServer(app).listen(httpPort);
 	httpServer.on('error', (err) => {
 		console.error('HTTP server error: ', err)
 	});
-	console.log("Started HTTP server at port 80");
+	console.log("Started HTTP server at port " + httpPort);
 } catch (err) {
-	console.error("Failed to start HTTP server at port 80");
+	console.error("Failed to start HTTP server at port " + httpPort);
 }
 
 if (https_ok) {
 	try {
-		https.createServer(https_options, app).listen(443);
-		console.log("Started HTTPS server at port 443");
+		https.createServer(https_options, app).listen(9443);
+		console.log("Started HTTPS server at port " + httpsPort);
 	} catch (err) {
 		https_ok = false;
-		console.error("Failed to start HTTPS server at port 443");
+		console.error("Failed to start HTTPS server at port " + httpsPort);
 	}
 }

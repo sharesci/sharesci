@@ -1,5 +1,8 @@
 #!/bin/bash
 
+HTTP_PORT=80
+HTTPS_PORT=443
+
 QUICK_START="$1"
 original_dir="$(pwd)"
 SOURCE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -11,12 +14,12 @@ if [[ "$QUICK_START" != "--quick" ]] ; then
 fi
 
 # Kill any currently-running server instances
-SERVER_PID="$(lsof -t -i:80 -sTCP:LISTEN)"
+SERVER_PID="$(lsof -t -i:"${HTTP_PORT}" -sTCP:LISTEN)"
 if [ ! -z "$SERVER_PID" ] ; then
 	kill "$SERVER_PID"
 fi
 
-SERVER_PID="$(lsof -t -i:443 -sTCP:LISTEN)"
+SERVER_PID="$(lsof -t -i:"${HTTPS_PORT}" -sTCP:LISTEN)"
 if [ ! -z "$SERVER_PID" ] ; then
 	kill "$SERVER_PID"
 fi
