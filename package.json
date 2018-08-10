@@ -1,22 +1,22 @@
 {
   "name": "sharesci-site",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A research paper sharing site. If this ends up in the NPM registry, something went terribly wrong",
   "license": "UNLICENSED",
   "dependencies": {
-    "bcrypt": "^1.0.2",
-    "body-parser": "^1.17.1",
+    "bcrypt": "^1.0.3",
+    "body-parser": "^1.18.3",
     "cheerio": "^0.22.0",
-    "compression": "^1.6.2",
-    "ejs": "^2.5.6",
-    "express": "^4.15.2",
-    "express-session": "^1.15.2",
-    "mongodb": "^2.2.26",
-    "multer": "^1.3.0",
-    "nodemailer": "^4.0.1",
+    "compression": "^1.7.3",
+    "ejs": "^2.6.1",
+    "express": "^4.16.3",
+    "express-session": "^1.15.6",
+    "mongodb": "^2.2.36",
+    "multer": "^1.3.1",
+    "nodemailer": "^4.6.7",
     "pdftotextjs": "^0.4.0",
-    "pg-promise": "^5.6.7",
+    "pg-promise": "^5.9.7",
     "request-promise": "^4.2.2",
-    "xml2js": "^0.4.17"
+    "xml2js": "^0.4.19"
   }
 }
