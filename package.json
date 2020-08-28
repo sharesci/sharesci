@@ -4,7 +4,7 @@
   "description": "A research paper sharing site. If this ends up in the NPM registry, something went terribly wrong",
   "license": "UNLICENSED",
   "dependencies": {
-    "bcrypt": "^1.0.2",
+    "bcrypt": "^5.0.0",
     "body-parser": "^1.17.1",
     "cheerio": "^0.22.0",
     "compression": "^1.6.2",
